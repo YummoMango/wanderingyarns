@@ -1,0 +1,50 @@
+[
+  {
+    "id": "crochet-keychain-1",
+    "name": "Crochet Keychain",
+    "category": "crochet",
+    "price": 12.00,
+    "image": "images/products/crochet-keychain.jpg",
+    "description": "Handmade crochet keychain — lightweight, cute, and giftable.",
+    "details": "Each keychain is crocheted by hand using soft acrylic yarn, then stuffed lightly and finished with a sturdy metal keyring. No two are exactly alike — small variations in colour and shape are part of what makes them special. Great as a bag charm, gift, or little treat for yourself.",
+    "origin": "Handmade",
+    "materials": "Acrylic yarn, polyester stuffing, metal keyring",
+    "stock": "made to order"
+  },
+  {
+    "id": "crochet-plush-1",
+    "name": "Crochet Plushie",
+    "category": "crochet",
+    "price": 25.00,
+    "image": "images/products/crochet-plushie.jpg",
+    "description": "Soft handmade plushie made with care.",
+    "details": "A squishy, huggable plushie crocheted from chunky chenille yarn — the same kind used in the product photo. Each one takes a few hours to make and is finished with safety eyes and a polyfill stuffing. Suitable for display or as a soft toy for older children (not for under 3s due to small parts).",
+    "origin": "Handmade",
+    "materials": "Chenille yarn, polyester stuffing, safety eyes",
+    "stock": "made to order"
+  },
+  {
+    "id": "souvenir-postcards-1",
+    "name": "Postcard Pack",
+    "category": "souvenir",
+    "price": 8.00,
+    "image": "images/products/postcards.jpg",
+    "description": "A set of postcards collected from a trip abroad.",
+    "details": "A small bundle of postcards picked up during travels — from museums, local shops, and market stalls. Each pack contains 4–6 cards from the same trip or region. Great for decorating, journaling, or actually sending to someone.",
+    "origin": "Collected abroad",
+    "materials": "Printed card stock",
+    "stock": "limited"
+  },
+  {
+    "id": "souvenir-bracelet-1",
+    "name": "Souvenir Bracelet",
+    "category": "souvenir",
+    "price": 10.00,
+    "image": "images/products/bracelet.jpg",
+    "description": "A colorful bracelet sourced from another country.",
+    "details": "A woven friendship-style bracelet sourced from a local market abroad. Colourful, lightweight, and adjustable. Each one comes with a small card noting where it was found. Stock is limited and won't be restocked once sold — when it's gone, it's gone.",
+    "origin": "Collected abroad",
+    "materials": "Woven thread, adjustable tie closure",
+    "stock": "limited"
+  }
+]

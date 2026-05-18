@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product | WanderingYarns</title>
+  <meta name="description" content="Product details at WanderingYarns." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .product-detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+      padding: 3rem 0 5rem;
+    }
+
+    .product-detail-media {
+      position: sticky;
+      top: 90px;
+      background: #f0ede8;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-detail-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-detail-media .img-placeholder {
+      font-size: 4rem;
+      color: #bbb;
+    }
+
+    .product-detail-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .product-detail-eyebrow {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e58f87;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .product-detail-title {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .product-detail-price {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #111;
+    }
+
+    .product-detail-desc {
+      font-size: 1rem;
+      color: #4b4b4b;
+      line-height: 1.75;
+      border-top: 1px solid #e5e2dd;
+      padding-top: 1.5rem;
+    }
+
+    .product-detail-desc p + p {
+      margin-top: 0.75rem;
+    }
+
+    .product-meta-table {
+      border: 1px solid #e5e2dd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .product-meta-row {
+      display: flex;
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #e5e2dd;
+    }
+
+    .product-meta-row:last-child {
+      border-bottom: none;
+    }
+
+    .product-meta-label {
+      color: #888;
+      width: 110px;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .product-meta-value {
+      color: #111;
+    }
+
+    .stock-limited {
+      color: #BA7517;
+      font-weight: 700;
+    }
+
+    .stock-made {
+      color: #3B6D11;
+      font-weight: 700;
+    }
+
+    .product-detail-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 0.5rem;
+    }
+
+    .detail-qty-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .detail-qty-stepper button {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      border: 1px solid #e5e2dd;
+      background: white;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 1.4rem;
+      color: #333;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-qty-stepper button:hover {
+      border-color: #e58f87;
+      background: #fff8f7;
+    }
+
+    .detail-qty-stepper .qty-num {
+      min-width: 40px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .btn-add-detail {
+      flex: 1;
+      padding: 0.9rem 1.5rem;
+      background: #e58f87;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-add-detail:hover {
+      background: #d97770;
+    }
+
+    .btn-add-detail:disabled {
+      background: #c5a9a6;
+      cursor: default;
+    }
+
+    .breadcrumb {
+      padding: 1.5rem 0 0;
+      font-size: 0.9rem;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .breadcrumb a {
+      color: #888;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      color: #e58f87;
+    }
+
+    .breadcrumb .sep {
+      color: #ccc;
+    }
+
+    .breadcrumb .current {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .not-found {
+      padding: 6rem 0;
+      text-align: center;
+      color: #4b4b4b;
+    }
+
+    .not-found h2 {
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .product-detail-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2rem 0 4rem;
+      }
+
+      .product-detail-media {
+        position: static;
+        aspect-ratio: 4 / 3;
+      }
+
+      .product-detail-title {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="WanderingYarns Home">
+        <img src="images/wanderingyarns-logo.png" alt="WanderingYarns logo" class="brand-logo">
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link is-active">Shop</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="cart.html" class="nav-link">Cart <span class="cart-count" aria-label="Items in cart">(0)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="shop.html">Shop</a>
+        <span class="sep">›</span>
+        <span class="current" id="breadcrumbName">Loading…</span>
+      </div>
+    </div>
+
+    <div class="container" id="productDetail">
+      <!-- Injected by JS -->
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-brand">🧶 WanderingYarns</p>
+      <p class="footer-note">© <span id="year"></span> WanderingYarns. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const container = document.getElementById("productDetail");
+      const breadcrumb = document.getElementById("breadcrumbName");
+
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      if (!id) {
+        showNotFound(container);
+        return;
+      }
+
+      let products;
+      try {
+        const res = await fetch("data/products.json");
+        products = await res.json();
+      } catch {
+        showNotFound(container);
+        return;
+      }
+
+      const product = products.find(p => p.id === id);
+      if (!product) {
+        showNotFound(container);
+        return;
+      }
+
+      document.title = `${product.name} | WanderingYarns`;
+      breadcrumb.textContent = product.name;
+
+      const cart = getCart();
+      let qty = Number(cart[product.id]?.qty ?? 0);
+
+      const stockLabel = product.stock === "limited"
+        ? `<span class="stock-limited">Limited stock</span>`
+        : `<span class="stock-made">Made to order</span>`;
+
+      container.innerHTML = `
+        <div class="product-detail-layout">
+          <div class="product-detail-media">
+            <img src="${product.image}" alt="${product.name}" id="detailImg" onerror="this.style.display='none'; document.getElementById('detailPlaceholder').style.display='flex'">
+            <div id="detailPlaceholder" class="img-placeholder" style="display:none">🧶</div>
+          </div>
+
+          <div class="product-detail-info">
+            <div>
+              <p class="product-detail-eyebrow">${product.category === "crochet" ? "Crochet item" : "Souvenir"}</p>
+              <h1 class="product-detail-title">${product.name}</h1>
+            </div>
+
+            <div class="product-detail-price">$${Number(product.price).toFixed(2)}</div>
+
+            <div class="product-detail-desc">
+              <p>${product.description}</p>
+              ${product.details ? `<p>${product.details}</p>` : ""}
+            </div>
+
+            <div class="product-meta-table">
+              ${product.materials ? `
+              <div class="product-meta-row">
+                <span class="product-meta-label">Materials</span>
+                <span class="product-meta-value">${product.materials}</span>
+              </div>` : ""}
+              <div class="product-meta-row">
+                <span class="product-meta-label">Origin</span>
+                <span class="product-meta-value">${product.origin || "—"}</span>
+              </div>
+              <div class="product-meta-row">
+                <span class="product-meta-label">Stock</span>
+                <span class="product-meta-value">${stockLabel}</span>
+              </div>
+            </div>
+
+            <div class="product-detail-actions">
+              <div class="detail-qty-stepper" aria-label="Quantity">
+                <button type="button" id="detailDec" aria-label="Decrease">−</button>
+                <span class="qty-num" id="detailQty">${qty}</span>
+                <button type="button" id="detailInc" aria-label="Increase">+</button>
+              </div>
+              <button class="btn-add-detail" type="button" id="detailAddBtn">
+                Add to Cart
+              </button>
+            </div>
+
+            <a class="btn btn-ghost" href="cart.html" style="text-align:center;">View Cart</a>
+          </div>
+        </div>
+      `;
+
+      const qtyEl = document.getElementById("detailQty");
+      const addBtn = document.getElementById("detailAddBtn");
+
+      document.getElementById("detailInc").addEventListener("click", () => {
+        qty++;
+        qtyEl.textContent = qty;
+      });
+
+      document.getElementById("detailDec").addEventListener("click", () => {
+        if (qty <= 0) return;
+        qty--;
+        qtyEl.textContent = qty;
+      });
+
+      addBtn.addEventListener("click", () => {
+        if (qty <= 0) return;
+        const cart = getCart();
+        const existing = Number(cart[product.id]?.qty ?? 0);
+        cart[product.id] = { qty: existing + qty };
+        saveCart(cart);
+
+        const original = addBtn.textContent;
+        addBtn.textContent = `Added ${qty} ✓`;
+        addBtn.disabled = true;
+        qty = 0;
+        qtyEl.textContent = 0;
+
+        setTimeout(() => {
+          addBtn.textContent = original;
+          addBtn.disabled = false;
+        }, 1200);
+      });
+    });
+
+    function showNotFound(container) {
+      document.getElementById("breadcrumbName").textContent = "Not found";
+      container.innerHTML = `
+        <div class="not-found">
+          <h2>Product not found</h2>
+          <p>This item might be sold out or the link may have changed.</p>
+          <a class="btn btn-primary" href="shop.html" style="margin-top:1.5rem; display:inline-block;">Back to Shop</a>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
