@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WanderingYarns</title>
+  <meta name="description" content="WanderingYarns — handmade crochet items + souvenirs from around the world." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="WanderingYarns Home">
+        <img src="images/wanderingyarns-logo.png" alt="WanderingYarns logo" class="brand-logo">
+      </a>
+
+
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        ☰
+      </button>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="nav-link is-active">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="cart.html" class="nav-link">Cart <span class="cart-count" aria-label="Items in cart">(0)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <p class="eyebrow">Handmade • Cozy • Collected Worldwide</p>
+          <h1>WanderingYarns</h1>
+          <p class="lead">
+            A little shop for two kinds of treasures:
+            <strong>handmade crochet items</strong> and
+            <strong>souvenirs from other countries</strong>.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="shop.html">Shop Now</a>
+            <a class="btn btn-ghost" href="#about">Learn More</a>
+          </div>
+
+          <ul class="hero-badges" aria-label="Highlights">
+            <li>Handmade crochet</li>
+            <li>Small-batch drops</li>
+            <li>Souvenirs with stories</li>
+          </ul>
+        </div>
+
+        <div class="hero-media" aria-label="Featured image">
+          <!-- Replace this src later with your real hero image -->
+          <img src="images/wanderingyarns-logo.png" alt="WanderingYarns logo" />
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="section" id="about">
+      <div class="container">
+        <h2>What we sell</h2>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>Crochet items</h3>
+            <p>
+              Handmade pieces like plushies, keychains, and cozy accessories — crafted with care.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <h3>Souvenirs</h3>
+            <p>
+              Small items collected from travels — each one with a place and a story behind it.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <h3>Simple shopping</h3>
+            <p>
+              Add items to your cart and check out when you’re ready. (We’ll connect Stripe later.)
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section cta">
+      <div class="container cta-inner">
+        <div>
+          <h2>Ready to browse?</h2>
+          <p>Explore crochet creations and travel souvenirs in the shop.</p>
+        </div>
+        <a class="btn btn-primary" href="shop.html">Go to Shop</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-brand">🧶 WanderingYarns</p>
+      <p class="footer-note">© <span id="year"></span> WanderingYarns. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

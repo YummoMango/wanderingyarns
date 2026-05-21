@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About | WanderingYarns</title>
+  <meta name="description" content="The story behind WanderingYarns — handmade crochet items and souvenirs from around the world." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .about-hero {
+      padding: 4rem 0 2rem;
+    }
+
+    .about-hero h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .about-hero .lead {
+      max-width: 55ch;
+      font-size: 1.1rem;
+      color: #4b4b4b;
+    }
+
+    .about-story {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      padding: 4rem 0;
+      border-top: 1px solid #e5e2dd;
+    }
+
+    .about-story-text h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .about-story-text p {
+      color: #4b4b4b;
+      margin-bottom: 1rem;
+      line-height: 1.75;
+    }
+
+    .about-image-placeholder {
+      background: #f0ede8;
+      border-radius: 16px;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: #888;
+      font-size: 0.9rem;
+      border: 2px dashed #e5e2dd;
+    }
+
+    .about-image-placeholder span {
+      font-size: 2.5rem;
+    }
+
+    .values-section {
+      padding: 4rem 0;
+      border-top: 1px solid #e5e2dd;
+    }
+
+    .values-section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .value-card {
+      background: white;
+      border: 1px solid #e5e2dd;
+      border-radius: 12px;
+      padding: 1.75rem;
+    }
+
+    .value-card .icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .value-card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .value-card p {
+      color: #4b4b4b;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .contact-section {
+      padding: 4rem 0;
+      border-top: 1px solid #e5e2dd;
+    }
+
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .contact-inner h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .contact-inner p {
+      color: #4b4b4b;
+      margin-bottom: 1.5rem;
+      line-height: 1.75;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #111;
+      padding: 0.9rem 1.1rem;
+      background: white;
+      border: 1px solid #e5e2dd;
+      border-radius: 10px;
+      font-weight: 500;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .contact-link:hover {
+      border-color: #e58f87;
+      background: #fff8f7;
+    }
+
+    .contact-link .link-icon {
+      font-size: 1.2rem;
+    }
+
+    .contact-link .link-label {
+      font-size: 0.85rem;
+      color: #888;
+      font-weight: 400;
+      display: block;
+    }
+
+    .contact-form-box {
+      background: white;
+      border: 1px solid #e5e2dd;
+      border-radius: 12px;
+      padding: 2rem;
+    }
+
+    .contact-form-box h3 {
+      font-size: 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid #e5e2dd;
+      border-radius: 8px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.95rem;
+      background: #fafafa;
+      color: #111;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #e58f87;
+      background: white;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 1.5rem;
+      color: #3B6D11;
+      background: #EAF3DE;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .about-story {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .values-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .about-hero h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="WanderingYarns Home">
+        <img src="images/wanderingyarns-logo.png" alt="WanderingYarns logo" class="brand-logo">
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        ☰
+      </button>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+        <a href="about.html" class="nav-link is-active">About</a>
+        <a href="cart.html" class="nav-link">Cart <span class="cart-count" aria-label="Items in cart">(0)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="about-hero">
+      <div class="container">
+        <p class="eyebrow">The story behind the shop</p>
+        <h1>About WanderingYarns</h1>
+        <p class="lead">
+          A little shop born from two loves: the meditative joy of crochet, and the thrill of finding something special while travelling somewhere new.
+        </p>
+      </div>
+    </section>
+
+    <!-- Story -->
+    <section class="section">
+      <div class="container">
+        <div class="about-story">
+          <div class="about-story-text">
+            <h2>Where it all started</h2>
+            <p>
+              WanderingYarns started as a hobby — making little crocheted creatures for friends and family. Then came the travels, and with them, the souvenirs: small objects picked up from markets, shops, and roadside stalls that felt too good to leave behind.
+            </p>
+            <p>
+              Eventually both worlds collided into one small shop. Every item here is either made by hand or personally collected — nothing is mass-produced or ordered from a catalogue.
+            </p>
+            <p>
+              Each piece has a story. That's the whole point.
+            </p>
+          </div>
+          <div class="about-image-placeholder" aria-label="Photo coming soon">
+            <span>🧶</span>
+            <p>Add a photo of yourself or your work here</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Values -->
+    <section class="values-section">
+      <div class="container">
+        <h2>What we care about</h2>
+        <div class="values-grid">
+          <article class="value-card">
+            <div class="icon">🤲</div>
+            <h3>Handmade with care</h3>
+            <p>Every crochet item is made one at a time. No shortcuts, no production lines — just yarn, a hook, and a lot of patience.</p>
+          </article>
+          <article class="value-card">
+            <div class="icon">🌍</div>
+            <h3>Collected with intention</h3>
+            <p>Souvenirs are chosen because they're genuinely interesting — not just because they fit in a suitcase. Each one comes from a real place and a real trip.</p>
+          </article>
+          <article class="value-card">
+            <div class="icon">💛</div>
+            <h3>Small and personal</h3>
+            <p>This is a one-person shop. When you buy something here, you're supporting a real human, not a warehouse.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="contact-section">
+      <div class="container">
+        <div class="contact-inner">
+          <div>
+            <h2>Get in touch</h2>
+            <p>
+              Have a question about an item, want to request a custom crochet piece, or just want to say hi? I'd love to hear from you.
+            </p>
+            <div class="contact-links">
+              <a class="contact-link" href="mailto:hello@wanderingyarns.com">
+                <span class="link-icon">✉️</span>
+                <span>
+                  hello@wanderingyarns.com
+                  <span class="link-label">Email — best for orders &amp; customs</span>
+                </span>
+              </a>
+              <a class="contact-link" href="https://instagram.com/wanderingyarns" target="_blank" rel="noopener">
+                <span class="link-icon">📷</span>
+                <span>
+                  @wanderingyarns
+                  <span class="link-label">Instagram — works in progress &amp; new drops</span>
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <div class="contact-form-box">
+            <h3>Send a message</h3>
+            <div class="form-group">
+              <label for="contact-name">Your name</label>
+              <input type="text" id="contact-name" placeholder="e.g. Sarah" autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label for="contact-email">Email address</label>
+              <input type="email" id="contact-email" placeholder="you@example.com" autocomplete="email" />
+            </div>
+            <div class="form-group">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" placeholder="Ask about a product, request a custom piece, or just say hello…"></textarea>
+            </div>
+            <button class="btn btn-primary" type="button" id="contactSubmit" style="width:100%; text-align:center;">
+              Send message
+            </button>
+            <div class="form-success" id="formSuccess">
+              Message sent! I'll get back to you soon 🧶
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section cta">
+      <div class="container cta-inner">
+        <div>
+          <h2>Ready to shop?</h2>
+          <p>Browse crochet creations and travel souvenirs in the shop.</p>
+        </div>
+        <a class="btn btn-primary" href="shop.html" style="background:white; color:#e58f87;">Go to Shop</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-brand">🧶 WanderingYarns</p>
+      <p class="footer-note">© <span id="year"></span> WanderingYarns. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById("contactSubmit").addEventListener("click", () => {
+      const name = document.getElementById("contact-name").value.trim();
+      const email = document.getElementById("contact-email").value.trim();
+      const message = document.getElementById("contact-message").value.trim();
+
+      if (!name || !email || !message) {
+        alert("Please fill in all fields before sending.");
+        return;
+      }
+
+      // Shows success state — wire to a real backend (Formspree, EmailJS etc.) later
+      document.getElementById("contactSubmit").style.display = "none";
+      document.getElementById("formSuccess").style.display = "block";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+[
+  {
+    "id": "crochet-keychain-1",
+    "name": "Crochet Keychain",
+    "category": "crochet",
+    "price": 12.00,
+    "available": true,
+    "images": [
+      "images/products/crochet-keychain.jpg",
+      "images/products/crochet-keychain-2.jpg",
+      "images/products/crochet-keychain-3.jpg"
+    ],
+    "image": "images/products/crochet-keychain.jpg",
+    "description": "Handmade crochet keychain — lightweight, cute, and giftable.",
+    "details": "Each keychain is crocheted by hand using soft acrylic yarn, then stuffed lightly and finished with a sturdy metal keyring. No two are exactly alike — small variations in colour and shape are part of what makes them special. Great as a bag charm, gift, or little treat for yourself.",
+    "origin": "Handmade",
+    "materials": "Acrylic yarn, polyester stuffing, metal keyring",
+    "stock": "made to order",
+    "reviews": [
+      { "name": "Sophie T.", "rating": 5, "date": "March 2025", "text": "Absolutely adorable! Great quality and arrived really quickly. Bought one for my bag and now everyone asks where I got it." },
+      { "name": "Jamie L.", "rating": 5, "date": "January 2025", "text": "Such a sweet little thing. The colours are even nicer in person. Will definitely be ordering more as gifts." }
+    ]
+  },
+  {
+    "id": "crochet-plush-1",
+    "name": "Crochet Plushie",
+    "category": "crochet",
+    "price": 25.00,
+    "available": true,
+    "images": [
+      "images/products/crochet-plushie.jpg",
+      "images/products/crochet-plushie-2.jpg",
+      "images/products/crochet-plushie-3.jpg"
+    ],
+    "image": "images/products/crochet-plushie.jpg",
+    "description": "Soft handmade plushie made with care.",
+    "details": "A squishy, huggable plushie crocheted from chunky chenille yarn — the same kind used in the product photo. Each one takes a few hours to make and is finished with safety eyes and a polyfill stuffing. Suitable for display or as a soft toy for older children (not for under 3s due to small parts).",
+    "origin": "Handmade",
+    "materials": "Chenille yarn, polyester stuffing, safety eyes",
+    "stock": "made to order",
+    "reviews": [
+      { "name": "Maria K.", "rating": 5, "date": "April 2025", "text": "Got this as a gift for my daughter and she absolutely loves it. The chenille yarn is so soft — she carries it everywhere." },
+      { "name": "Alex R.", "rating": 4, "date": "February 2025", "text": "Really well made and super cute. Took about 2 weeks to arrive but worth the wait!" }
+    ]
+  },
+  {
+    "id": "souvenir-postcards-1",
+    "name": "Postcard Pack",
+    "category": "souvenir",
+    "price": 8.00,
+    "available": true,
+    "images": [
+      "images/products/postcards.jpg",
+      "images/products/postcards-2.jpg"
+    ],
+    "image": "images/products/postcards.jpg",
+    "description": "A set of postcards collected from a trip abroad.",
+    "details": "A small bundle of postcards picked up during travels — from museums, local shops, and market stalls. Each pack contains 4–6 cards from the same trip or region. Great for decorating, journaling, or actually sending to someone.",
+    "origin": "Collected abroad",
+    "materials": "Printed card stock",
+    "stock": "limited",
+    "reviews": [
+      { "name": "Priya S.", "rating": 5, "date": "May 2025", "text": "Such a lovely set! I used them to decorate my journal. Really unique illustrations you wouldn't find in a regular shop." }
+    ]
+  },
+  {
+    "id": "souvenir-bracelet-1",
+    "name": "Souvenir Bracelet",
+    "category": "souvenir",
+    "price": 10.00,
+    "available": false,
+    "images": [
+      "images/products/bracelet.jpg",
+      "images/products/bracelet-2.jpg"
+    ],
+    "image": "images/products/bracelet.jpg",
+    "description": "A colorful bracelet sourced from another country.",
+    "details": "A woven friendship-style bracelet sourced from a local market abroad. Colourful, lightweight, and adjustable. Each one comes with a small card noting where it was found. Stock is limited and won't be restocked once sold — when it's gone, it's gone.",
+    "origin": "Collected abroad",
+    "materials": "Woven thread, adjustable tie closure",
+    "stock": "limited",
+    "reviews": []
+  }
+]

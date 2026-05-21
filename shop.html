@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop | WanderingYarns</title>
+  <meta name="description" content="Shop crochet items and travel souvenirs at WanderingYarns." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="WanderingYarns Home">
+        <img src="images/wanderingyarns-logo.png" alt="WanderingYarns logo" class="brand-logo">
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        ☰
+      </button>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link is-active">Shop</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="cart.html" class="nav-link">
+          Cart <span class="cart-count" aria-label="Items in cart">(0)</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Page header -->
+    <section class="page-hero">
+      <div class="container page-hero-inner">
+        <div>
+          <h1>Shop</h1>
+          <p class="muted">
+            Browse handmade crochet items and souvenirs collected from around the world.
+          </p>
+        </div>
+        <div class="trust-badges" aria-label="Trust highlights">
+          <span class="badge">Secure checkout (coming soon)</span>
+          <span class="badge">Clear pricing</span>
+          <span class="badge">Small business</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="section section-tight">
+      <div class="container">
+        <div class="filters" role="group" aria-label="Shop category filters">
+          <button class="filter-btn is-active" type="button" data-filter="all">All</button>
+          <button class="filter-btn" type="button" data-filter="crochet">Crochet Items</button>
+          <button class="filter-btn" type="button" data-filter="souvenir">Souvenirs</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product grid -->
+    <section class="section">
+      <div class="container">
+        <div id="productGrid" class="product-grid" aria-live="polite">
+          <!-- Products get inserted here by js/app.js -->
+        </div>
+
+        <p id="emptyState" class="empty-state hidden">
+          No items found in this category yet.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-brand">🧶 WanderingYarns</p>
+      <p class="footer-note">© <span id="year"></span> WanderingYarns. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
