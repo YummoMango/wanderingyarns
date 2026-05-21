@@ -52,6 +52,17 @@ function saveReview(productId, review) {
   localStorage.setItem(`${REVIEWS_KEY}_${productId}`, JSON.stringify(reviews));
 }
 
+/* ---------- Stars ---------- */
+function renderStars(rating) {
+  let html = "";
+  for (let i = 1; i <= 5; i++) {
+    if (rating >= i) html += `<span class="star full">★</span>`;
+    else if (rating >= i - 0.5) html += `<span class="star half">★</span>`;
+    else html += `<span class="star empty">★</span>`;
+  }
+  return html;
+}
+
 /* ---------- Header / Shared UI ---------- */
 function setYear() {
   const yearEl = $("#year");
@@ -73,75 +84,91 @@ function setupNavToggle() {
   });
 }
 
-/* ---------- Shop Page ---------- */
+/* ---------- Product Loading ---------- */
 async function loadProducts() {
   const res = await fetch(PRODUCTS_URL);
   if (!res.ok) throw new Error("Could not load products.json");
   return await res.json();
 }
 
-function renderProducts(products, filter = "all") {
-  const grid = $("#productGrid");
-  const emptyState = $("#emptyState");
-  if (!grid) return;
+/* ---------- Render a single product card ---------- */
+function buildProductCard(product, cart) {
+  const isAvailable = product.available !== false;
+  const allReviews = [...(product.reviews || []), ...getReviews(product.id)];
+  const avgRating = allReviews.length
+    ? (allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length).toFixed(1)
+    : null;
+  const starsHtml = avgRating
+    ? `<div class="card-stars">${renderStars(parseFloat(avgRating))} <span class="card-review-count">(${allReviews.length})</span></div>`
+    : "";
 
-  const visible = filter === "all" ? products : products.filter(p => p.category === filter);
+  const inCartQty = Number(cart[product.id]?.qty ?? 0);
+  const card = document.createElement("article");
+  card.className = "product-card" + (!isAvailable ? " out-of-stock" : "");
+
+  card.innerHTML = `
+    <a class="product-media" href="product.html?id=${product.id}" aria-label="View ${product.name} details">
+      <img src="${product.image}" alt="${product.name}" loading="lazy">
+      ${!isAvailable ? `<div class="oos-overlay">Out of Stock</div>` : ""}
+    </a>
+    <div class="product-body">
+      <div class="product-title">
+        <h3><a href="product.html?id=${product.id}" class="product-name-link">${product.name}</a></h3>
+        <div class="price">${formatMoney(product.price)}</div>
+      </div>
+      ${starsHtml}
+      <p class="product-desc">${product.description}</p>
+      <div class="product-meta">
+        <span class="pill">${product.category === "crochet" ? "Crochet" : "Souvenir"}</span>
+        ${product.variants ? `<span class="pill pill-accent">${product.variants.length} designs</span>` : ""}
+        ${!isAvailable ? `<span class="pill pill-oos">Out of Stock</span>` : ""}
+      </div>
+      <div class="product-actions">
+        ${isAvailable ? `
+        <div class="qty-stepper" aria-label="Quantity">
+          <button type="button" data-dec-shop="${product.id}" aria-label="Decrease">−</button>
+          <span class="qty-display" id="qty-${product.id}">${inCartQty}</span>
+          <button type="button" data-inc-shop="${product.id}" aria-label="Increase">+</button>
+        </div>
+        <a class="btn-small btn-outline" href="cart.html">View Cart</a>
+        ` : `<span class="oos-label">Currently unavailable</span>`}
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+/* ---------- Shop Page - Two Grids ---------- */
+function renderShopGrids(products) {
+  const crochetGrid = $("#crochetGrid");
+  const souvenirGrid = $("#souvenirGrid");
+  if (!crochetGrid && !souvenirGrid) return;
+
   const cart = getCart();
-  grid.innerHTML = "";
+  const crochetProducts = products.filter(p => p.category === "crochet");
+  const souvenirProducts = products.filter(p => p.category === "souvenir");
 
-  if (visible.length === 0) {
-    if (emptyState) emptyState.classList.remove("hidden");
-    return;
-  } else {
-    if (emptyState) emptyState.classList.add("hidden");
+  if (crochetGrid) {
+    crochetGrid.innerHTML = "";
+    if (crochetProducts.length === 0) {
+      $("#crochetEmpty")?.classList.remove("hidden");
+    } else {
+      $("#crochetEmpty")?.classList.add("hidden");
+      crochetProducts.forEach(p => crochetGrid.appendChild(buildProductCard(p, cart)));
+    }
   }
 
-  visible.forEach(product => {
-    const inCartQty = Number(cart[product.id]?.qty ?? 0);
-    const isAvailable = product.available !== false;
-    const card = document.createElement("article");
-    card.className = "product-card" + (!isAvailable ? " out-of-stock" : "");
+  if (souvenirGrid) {
+    souvenirGrid.innerHTML = "";
+    if (souvenirProducts.length === 0) {
+      $("#souvenirEmpty")?.classList.remove("hidden");
+    } else {
+      $("#souvenirEmpty")?.classList.add("hidden");
+      souvenirProducts.forEach(p => souvenirGrid.appendChild(buildProductCard(p, cart)));
+    }
+  }
 
-    // Build star rating from all reviews
-    const allReviews = [...(product.reviews || []), ...getReviews(product.id)];
-    const avgRating = allReviews.length
-      ? (allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length).toFixed(1)
-      : null;
-    const starsHtml = avgRating
-      ? `<div class="card-stars">${renderStars(parseFloat(avgRating))} <span class="card-review-count">(${allReviews.length})</span></div>`
-      : "";
-
-    card.innerHTML = `
-      <a class="product-media" href="product.html?id=${product.id}" aria-label="View ${product.name} details">
-        <img src="${product.image}" alt="${product.name}" loading="lazy">
-        ${!isAvailable ? `<div class="oos-overlay">Out of Stock</div>` : ""}
-      </a>
-      <div class="product-body">
-        <div class="product-title">
-          <h3><a href="product.html?id=${product.id}" class="product-name-link">${product.name}</a></h3>
-          <div class="price">${formatMoney(product.price)}</div>
-        </div>
-        ${starsHtml}
-        <p class="product-desc">${product.description}</p>
-        <div class="product-meta">
-          <span class="pill">${product.category === "crochet" ? "Crochet" : "Souvenir"}</span>
-          ${!isAvailable ? `<span class="pill pill-oos">Out of Stock</span>` : ""}
-        </div>
-        <div class="product-actions">
-          ${isAvailable ? `
-          <div class="qty-stepper" aria-label="Quantity">
-            <button type="button" data-dec-shop="${product.id}" aria-label="Decrease">−</button>
-            <span class="qty-display" id="qty-${product.id}">${inCartQty}</span>
-            <button type="button" data-inc-shop="${product.id}" aria-label="Increase">+</button>
-          </div>
-          <a class="btn-small btn-outline" href="cart.html">View Cart</a>
-          ` : `<span class="oos-label">Currently unavailable</span>`}
-        </div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-
+  // Wire up qty steppers
   $all("[data-inc-shop]").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-inc-shop");
@@ -164,29 +191,6 @@ function renderProducts(products, filter = "all") {
       if (display) display.textContent = Number(getCart()[id]?.qty ?? 0);
     });
   });
-}
-
-function setupFilters(products) {
-  const buttons = $all(".filter-btn");
-  if (buttons.length === 0) return;
-  buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      buttons.forEach(b => b.classList.remove("is-active"));
-      btn.classList.add("is-active");
-      renderProducts(products, btn.dataset.filter);
-    });
-  });
-}
-
-/* ---------- Stars helper ---------- */
-function renderStars(rating) {
-  let html = "";
-  for (let i = 1; i <= 5; i++) {
-    if (rating >= i) html += `<span class="star full">★</span>`;
-    else if (rating >= i - 0.5) html += `<span class="star half">★</span>`;
-    else html += `<span class="star empty">★</span>`;
-  }
-  return html;
 }
 
 /* ---------- Cart Page ---------- */
@@ -236,10 +240,10 @@ function renderCart(products) {
           </div>
           <div class="cart-item-price">${formatMoney(price)}</div>
         </div>
-        <div class="cart-item-controls" aria-label="Quantity controls">
-          <button class="qty-btn" type="button" data-dec="${id}" aria-label="Decrease quantity">−</button>
-          <span class="qty" aria-label="Quantity">${qty}</span>
-          <button class="qty-btn" type="button" data-inc="${id}" aria-label="Increase quantity">+</button>
+        <div class="cart-item-controls">
+          <button class="qty-btn" type="button" data-dec="${id}">−</button>
+          <span class="qty">${qty}</span>
+          <button class="qty-btn" type="button" data-inc="${id}">+</button>
           <button class="remove-btn" type="button" data-remove="${id}">Remove</button>
           <span class="line-total">${formatMoney(lineTotal)}</span>
         </div>
@@ -314,13 +318,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const products = await loadProducts();
-    if ($("#productGrid")) { renderProducts(products); setupFilters(products); }
-    if ($("#cartItems")) { setupCartPage(products); }
+
+    // Shop page (two grids)
+    if ($("#crochetGrid") || $("#souvenirGrid")) {
+      renderShopGrids(products);
+    }
+
+    // Cart page
+    if ($("#cartItems")) {
+      setupCartPage(products);
+    }
+
   } catch (err) {
     console.error(err);
-    const grid = $("#productGrid");
+    const crochetEl = $("#crochetGrid");
+    const souvenirEl = $("#souvenirGrid");
     const cartEl = $("#cartItems");
-    if (grid) grid.innerHTML = "<p>Could not load products.</p>";
+    if (crochetEl) crochetEl.innerHTML = "<p>Could not load products.</p>";
+    if (souvenirEl) souvenirEl.innerHTML = "<p>Could not load products.</p>";
     if (cartEl) cartEl.innerHTML = "<p>Make sure Live Server is running and products.json is available.</p>";
   }
 });

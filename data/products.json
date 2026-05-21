@@ -3,79 +3,133 @@
     "id": "crochet-keychain-1",
     "name": "Crochet Keychain",
     "category": "crochet",
-    "price": 12.00,
+    "price": 12.0,
     "available": true,
     "images": [
-      "images/products/crochet-keychain.jpg",
+      "images/products/crochet-keychain-1.jpg",
       "images/products/crochet-keychain-2.jpg",
-      "images/products/crochet-keychain-3.jpg"
+      "images/products/crochet-keychain-3.jpg",
+      "images/products/crochet-keychain-4.jpg"
     ],
-    "image": "images/products/crochet-keychain.jpg",
-    "description": "Handmade crochet keychain — lightweight, cute, and giftable.",
-    "details": "Each keychain is crocheted by hand using soft acrylic yarn, then stuffed lightly and finished with a sturdy metal keyring. No two are exactly alike — small variations in colour and shape are part of what makes them special. Great as a bag charm, gift, or little treat for yourself.",
+    "image": "images/products/crochet-keychain-1.jpg",
+    "description": "Handmade crochet keychain \u2014 lightweight, cute, and giftable.",
+    "details": "Each keychain is crocheted by hand using soft acrylic yarn, then stuffed lightly and finished with a sturdy metal keyring. No two are exactly alike \u2014 small variations in colour and shape are part of what makes them special. Great as a bag charm, gift, or little treat for yourself.",
     "origin": "Handmade",
     "materials": "Acrylic yarn, polyester stuffing, metal keyring",
     "stock": "made to order",
-    "reviews": [
-      { "name": "Sophie T.", "rating": 5, "date": "March 2025", "text": "Absolutely adorable! Great quality and arrived really quickly. Bought one for my bag and now everyone asks where I got it." },
-      { "name": "Jamie L.", "rating": 5, "date": "January 2025", "text": "Such a sweet little thing. The colours are even nicer in person. Will definitely be ordering more as gifts." }
-    ]
+    "reviews": []
   },
   {
     "id": "crochet-plush-1",
     "name": "Crochet Plushie",
     "category": "crochet",
-    "price": 25.00,
+    "price": 25.0,
     "available": true,
     "images": [
-      "images/products/crochet-plushie.jpg",
+      "images/products/crochet-plushie-1.jpg",
       "images/products/crochet-plushie-2.jpg",
-      "images/products/crochet-plushie-3.jpg"
+      "images/products/crochet-plushie-3.jpg",
+      "images/products/crochet-plushie-4.jpg"
     ],
-    "image": "images/products/crochet-plushie.jpg",
+    "image": "images/products/crochet-plushie-1.jpg",
     "description": "Soft handmade plushie made with care.",
-    "details": "A squishy, huggable plushie crocheted from chunky chenille yarn — the same kind used in the product photo. Each one takes a few hours to make and is finished with safety eyes and a polyfill stuffing. Suitable for display or as a soft toy for older children (not for under 3s due to small parts).",
+    "details": "A squishy, huggable plushie crocheted from chunky chenille yarn. Each one takes a few hours to make and is finished with safety eyes and a polyfill stuffing. Suitable for display or as a soft toy for older children (not for under 3s due to small parts).",
     "origin": "Handmade",
     "materials": "Chenille yarn, polyester stuffing, safety eyes",
     "stock": "made to order",
-    "reviews": [
-      { "name": "Maria K.", "rating": 5, "date": "April 2025", "text": "Got this as a gift for my daughter and she absolutely loves it. The chenille yarn is so soft — she carries it everywhere." },
-      { "name": "Alex R.", "rating": 4, "date": "February 2025", "text": "Really well made and super cute. Took about 2 weeks to arrive but worth the wait!" }
-    ]
+    "reviews": []
+  },
+  {
+    "id": "crochet-coaster-1",
+    "name": "Handmade Crochet Coasters",
+    "category": "crochet",
+    "price": 9.0,
+    "available": true,
+    "images": [
+      "images/products/coaster-teal-flower.jpg",
+      "images/products/coaster-blue-flower.jpg",
+      "images/products/coaster-moon.jpg",
+      "images/products/coaster-berry-bloom-1.jpg"
+    ],
+    "image": "images/products/coaster-teal-flower.jpg",
+    "description": "Handmade granny square coasters \u2014 each one a little work of art.",
+    "details": "Each coaster is crocheted by hand using soft acrylic yarn in a classic granny square style. No two are exactly alike. Choose your favourite design from the options below \u2014 each one has its own colour palette and personality. Great for gifting or keeping for yourself.",
+    "origin": "Handmade",
+    "materials": "Acrylic yarn",
+    "stock": "limited",
+    "variants": [
+      {
+        "id": "teal-flower",
+        "name": "Teal Flower",
+        "image": "images/products/coaster-teal-flower.jpg",
+        "available": true
+      },
+      {
+        "id": "blue-flower",
+        "name": "Blue Flower",
+        "image": "images/products/coaster-blue-flower.jpg",
+        "available": true
+      },
+      {
+        "id": "moon",
+        "name": "Moon",
+        "image": "images/products/coaster-moon.jpg",
+        "available": true
+      },
+      {
+        "id": "berry-bloom-a",
+        "name": "Berry Bloom A",
+        "image": "images/products/coaster-berry-bloom-1.jpg",
+        "available": true,
+        "stock": 2
+      },
+      {
+        "id": "berry-bloom-b",
+        "name": "Berry Bloom B",
+        "image": "images/products/coaster-berry-bloom-2.jpg",
+        "available": true,
+        "stock": 2
+      },
+      {
+        "id": "lavender-bloom",
+        "name": "Lavender Bloom",
+        "image": "images/products/coaster-lavender-bloom.jpg",
+        "available": true
+      }
+    ],
+    "reviews": []
   },
   {
     "id": "souvenir-postcards-1",
     "name": "Postcard Pack",
     "category": "souvenir",
-    "price": 8.00,
+    "price": 8.0,
     "available": true,
     "images": [
-      "images/products/postcards.jpg",
+      "images/products/postcards-1.jpg",
       "images/products/postcards-2.jpg"
     ],
-    "image": "images/products/postcards.jpg",
+    "image": "images/products/postcards-1.jpg",
     "description": "A set of postcards collected from a trip abroad.",
-    "details": "A small bundle of postcards picked up during travels — from museums, local shops, and market stalls. Each pack contains 4–6 cards from the same trip or region. Great for decorating, journaling, or actually sending to someone.",
+    "details": "A small bundle of postcards picked up during travels \u2014 from museums, local shops, and market stalls. Each pack contains 4\u20136 cards from the same trip or region. Great for decorating, journaling, or actually sending to someone.",
     "origin": "Collected abroad",
     "materials": "Printed card stock",
     "stock": "limited",
-    "reviews": [
-      { "name": "Priya S.", "rating": 5, "date": "May 2025", "text": "Such a lovely set! I used them to decorate my journal. Really unique illustrations you wouldn't find in a regular shop." }
-    ]
+    "reviews": []
   },
   {
     "id": "souvenir-bracelet-1",
     "name": "Souvenir Bracelet",
     "category": "souvenir",
-    "price": 10.00,
+    "price": 10.0,
     "available": false,
     "images": [
-      "images/products/bracelet.jpg",
+      "images/products/bracelet-1.jpg",
       "images/products/bracelet-2.jpg"
     ],
-    "image": "images/products/bracelet.jpg",
+    "image": "images/products/bracelet-1.jpg",
     "description": "A colorful bracelet sourced from another country.",
-    "details": "A woven friendship-style bracelet sourced from a local market abroad. Colourful, lightweight, and adjustable. Each one comes with a small card noting where it was found. Stock is limited and won't be restocked once sold — when it's gone, it's gone.",
+    "details": "A woven friendship-style bracelet sourced from a local market abroad. Colourful, lightweight, and adjustable. Each one comes with a small card noting where it was found.",
     "origin": "Collected abroad",
     "materials": "Woven thread, adjustable tie closure",
     "stock": "limited",

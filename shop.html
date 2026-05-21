@@ -6,70 +6,335 @@
   <title>Shop | WanderingYarns</title>
   <meta name="description" content="Shop crochet items and travel souvenirs at WanderingYarns." />
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ===== SECTION HEADERS ===== */
+    .shop-section {
+      padding: 4rem 0 2rem;
+    }
+
+    .shop-section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--cream-border);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .shop-section-header h2 {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      color: var(--ink);
+    }
+
+    .shop-section-header p {
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      max-width: 45ch;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: var(--cream-border);
+      margin: 1rem 0 0;
+    }
+
+    /* ===== NEXT DESTINATION BOARD ===== */
+    .destination-section {
+      padding: 4rem 0 5rem;
+      background: var(--cream-dark);
+      border-top: 1px solid var(--cream-border);
+      margin-top: 2rem;
+    }
+
+    .destination-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .destination-board {
+      background: white;
+      border: 1px solid var(--cream-border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .destination-board::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--rose), var(--amber));
+    }
+
+    .destination-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 0.5rem;
+    }
+
+    .destination-name {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .destination-note {
+      font-family: var(--font-ui);
+      font-size: 0.92rem;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .destination-date {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      background: var(--cream);
+      border: 1px solid var(--cream-border);
+      border-radius: 999px;
+      padding: 0.3rem 0.85rem;
+    }
+
+    .destination-empty {
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      color: var(--ink-muted);
+      font-style: italic;
+      padding: 1rem 0;
+    }
+
+    /* ===== REQUEST FORM ===== */
+    .request-box {
+      background: white;
+      border: 1px solid var(--cream-border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .request-box h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .request-box .request-sub {
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      color: var(--ink-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .req-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .req-group label {
+      display: block;
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin-bottom: 0.35rem;
+    }
+
+    .req-group input,
+    .req-group textarea {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--cream-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-size: 0.92rem;
+      background: var(--cream);
+      color: var(--ink);
+      transition: border-color var(--transition);
+      box-sizing: border-box;
+    }
+
+    .req-group input:focus,
+    .req-group textarea:focus {
+      outline: none;
+      border-color: var(--rose);
+      background: white;
+    }
+
+    .req-group textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .req-submit {
+      background: var(--rose);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1.5rem;
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background var(--transition);
+      box-shadow: 0 2px 10px rgba(212,114,106,0.25);
+      margin-top: 0.25rem;
+    }
+
+    .req-submit:hover { background: var(--rose-dark); }
+
+    .req-success {
+      display: none;
+      text-align: center;
+      padding: 1.25rem;
+      color: var(--green-ok);
+      background: var(--green-bg);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    .airtable-note {
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .destination-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <!-- Header / Nav -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="index.html" aria-label="WanderingYarns Home">
         <img src="images/wanderingyarns-logo.png" alt="WanderingYarns logo" class="brand-logo">
       </a>
-
-      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
-        ☰
-      </button>
-
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
       <nav class="site-nav" aria-label="Primary">
         <a href="index.html" class="nav-link">Home</a>
         <a href="shop.html" class="nav-link is-active">Shop</a>
         <a href="about.html" class="nav-link">About</a>
-        <a href="cart.html" class="nav-link">
-          Cart <span class="cart-count" aria-label="Items in cart">(0)</span>
-        </a>
+        <a href="cart.html" class="nav-link">Cart <span class="cart-count" aria-label="Items in cart">(0)</span></a>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- Page header -->
+    <!-- Page hero -->
     <section class="page-hero">
       <div class="container page-hero-inner">
         <div>
           <h1>Shop</h1>
-          <p class="muted">
-            Browse handmade crochet items and souvenirs collected from around the world.
-          </p>
+          <p class="muted">Handmade crochet pieces and souvenirs collected from around the world.</p>
         </div>
-        <div class="trust-badges" aria-label="Trust highlights">
-          <span class="badge">Secure checkout (coming soon)</span>
+        <div class="trust-badges">
+          <span class="badge">Handmade with care</span>
           <span class="badge">Clear pricing</span>
           <span class="badge">Small business</span>
         </div>
       </div>
     </section>
 
-    <!-- Filters -->
-    <section class="section section-tight">
+    <!-- SECTION 1: Crochet Products -->
+    <section class="shop-section">
       <div class="container">
-        <div class="filters" role="group" aria-label="Shop category filters">
-          <button class="filter-btn is-active" type="button" data-filter="all">All</button>
-          <button class="filter-btn" type="button" data-filter="crochet">Crochet Items</button>
-          <button class="filter-btn" type="button" data-filter="souvenir">Souvenirs</button>
+        <div class="shop-section-header">
+          <div>
+            <h2>🧶 Crochet Products</h2>
+            <p>Handmade one at a time — no shortcuts, no production lines.</p>
+          </div>
         </div>
+        <div id="crochetGrid" class="product-grid" aria-live="polite"></div>
+        <p id="crochetEmpty" class="empty-state hidden">No crochet items available right now — check back soon!</p>
       </div>
     </section>
 
-    <!-- Product grid -->
-    <section class="section">
+    <!-- SECTION 2: Global Travel Souvenirs -->
+    <section class="shop-section" style="padding-top: 1rem;">
       <div class="container">
-        <div id="productGrid" class="product-grid" aria-live="polite">
-          <!-- Products get inserted here by js/app.js -->
+        <div class="shop-section-header">
+          <div>
+            <h2>🌍 Global Travel Souvenirs</h2>
+            <p>Personally collected from markets, shops, and stalls around the world.</p>
+          </div>
         </div>
+        <div id="souvenirGrid" class="product-grid" aria-live="polite"></div>
+        <p id="souvenirEmpty" class="empty-state hidden">No souvenirs available right now — more coming soon from the next trip!</p>
+      </div>
+    </section>
 
-        <p id="emptyState" class="empty-state hidden">
-          No items found in this category yet.
-        </p>
+    <!-- SECTION 3: Next Destination -->
+    <section class="destination-section">
+      <div class="container">
+        <div class="shop-section-header" style="border-bottom: none; margin-bottom: 1.5rem;">
+          <div>
+            <h2>✈️ Next Destination</h2>
+            <p>See where I'm headed next and put in a souvenir request!</p>
+          </div>
+        </div>
+        <div class="destination-inner">
+          <div class="destination-board" id="destinationBoard">
+            <!-- Filled by JS -->
+          </div>
+          <div class="request-box">
+            <h3>Request a Souvenir</h3>
+            <p class="request-sub">Got something specific in mind? Let me know and I'll keep an eye out on my travels!</p>
+            <div class="req-group">
+              <label>Your name</label>
+              <input type="text" id="reqName" placeholder="e.g. Sarah" />
+            </div>
+            <div class="req-group">
+              <label>Email address</label>
+              <input type="email" id="reqEmail" placeholder="you@example.com" />
+            </div>
+            <div class="req-group">
+              <label>What are you looking for?</label>
+              <textarea id="reqItem" placeholder="e.g. A small ceramic piece, local postcards, handmade jewellery…"></textarea>
+            </div>
+            <div class="req-group">
+              <label>Budget (optional)</label>
+              <input type="text" id="reqBudget" placeholder="e.g. Under $20" />
+            </div>
+            <button class="req-submit" id="reqSubmitBtn">Send Request ✈️</button>
+            <div class="req-success" id="reqSuccess">Request sent! I'll keep an eye out 🌍</div>
+            <p class="airtable-note" id="airtableNote">Requests are saved securely — no spam, ever.</p>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -82,5 +347,91 @@
   </footer>
 
   <script src="js/app.js"></script>
+  <script>
+    /* ===== DESTINATION BOARD ===== */
+    const DEST_KEY = "wanderingyarns_destination";
+
+    function loadDestination() {
+      try {
+        const raw = localStorage.getItem(DEST_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
+
+    function renderDestinationBoard() {
+      const board = document.getElementById("destinationBoard");
+      const dest = loadDestination();
+
+      if (!dest || !dest.place) {
+        board.innerHTML = `
+          <div class="destination-eyebrow">Next Stop</div>
+          <p class="destination-empty">No destination set yet — check back soon! 🌍</p>`;
+        return;
+      }
+
+      board.innerHTML = `
+        <div class="destination-eyebrow">Next Stop</div>
+        <div class="destination-name">${dest.place}</div>
+        ${dest.note ? `<p class="destination-note">${dest.note}</p>` : ""}
+        ${dest.date ? `<span class="destination-date">🗓 ${dest.date}</span>` : ""}
+      `;
+    }
+
+    renderDestinationBoard();
+
+    /* ===== SOUVENIR REQUEST FORM ===== */
+    const AIRTABLE_API_KEY = "YOUR_AIRTABLE_API_KEY";
+    const AIRTABLE_BASE_ID = "YOUR_AIRTABLE_BASE_ID";
+    const AIRTABLE_TABLE = "Souvenir Requests";
+
+    document.getElementById("reqSubmitBtn").addEventListener("click", async () => {
+      const name = document.getElementById("reqName").value.trim();
+      const email = document.getElementById("reqEmail").value.trim();
+      const item = document.getElementById("reqItem").value.trim();
+      const budget = document.getElementById("reqBudget").value.trim();
+
+      if (!name || !email || !item) {
+        alert("Please fill in your name, email, and what you're looking for!");
+        return;
+      }
+
+      const dest = loadDestination();
+      const btn = document.getElementById("reqSubmitBtn");
+      btn.textContent = "Sending…";
+      btn.disabled = true;
+
+      try {
+        if (AIRTABLE_API_KEY !== "YOUR_AIRTABLE_API_KEY") {
+          await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${AIRTABLE_API_KEY}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              fields: {
+                "Name": name,
+                "Email": email,
+                "Request": item,
+                "Budget": budget || "Not specified",
+                "Destination": dest?.place || "Unknown",
+                "Date": new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+              }
+            })
+          });
+        }
+
+        btn.style.display = "none";
+        document.getElementById("reqSuccess").style.display = "block";
+        document.getElementById("airtableNote").style.display = "none";
+
+      } catch (err) {
+        console.error(err);
+        btn.textContent = "Send Request ✈️";
+        btn.disabled = false;
+        alert("Something went wrong — please try again!");
+      }
+    });
+  </script>
 </body>
 </html>

@@ -21,31 +21,54 @@
       position: sticky;
       top: 90px;
       display: flex;
-      gap: 14px;
+      flex-direction: row-reverse;
+      gap: 12px;
     }
 
     .gallery-thumbs {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      width: 72px;
+      width: 76px;
       flex-shrink: 0;
     }
 
     .gallery-thumb {
-      width: 72px;
-      height: 72px;
+      width: 76px;
+      height: 76px;
       border-radius: 10px;
       overflow: hidden;
       border: 2px solid transparent;
       cursor: pointer;
       background: #f5ede0;
-      transition: border-color 0.18s;
+      transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
       flex-shrink: 0;
+      position: relative;
+    }
+
+    .gallery-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(212, 114, 106, 0);
+      transition: background 0.18s;
+      border-radius: 8px;
+    }
+
+    .gallery-thumb:hover::after {
+      background: rgba(212, 114, 106, 0.12);
+    }
+
+    .gallery-thumb:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 14px rgba(212,114,106,0.25);
+      border-color: #e4b8b4;
     }
 
     .gallery-thumb.is-active {
       border-color: #d4726a;
+      box-shadow: 0 0 0 3px rgba(212,114,106,0.20);
+      transform: scale(1.05);
     }
 
     .gallery-thumb img {
@@ -319,6 +342,63 @@
       text-align: center;
     }
 
+    /* ===== VARIANTS ===== */
+    .variant-selector {
+      border-top: 1px solid #e4d9cc;
+      padding-top: 1.25rem;
+    }
+
+    .variant-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4a3f35;
+      margin-bottom: 0.75rem;
+    }
+
+    .variant-label span {
+      color: #d4726a;
+      font-weight: 700;
+    }
+
+    .variant-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .variant-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1.5px solid #e4d9cc;
+      background: white;
+      color: #4a3f35;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .variant-btn:hover:not(.is-unavailable) {
+      border-color: #d4726a;
+      color: #d4726a;
+      background: #fdf3f2;
+    }
+
+    .variant-btn.is-active {
+      border-color: #d4726a;
+      background: #d4726a;
+      color: white;
+      box-shadow: 0 2px 8px rgba(212,114,106,0.28);
+    }
+
+    .variant-btn.is-unavailable {
+      opacity: 0.4;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
     /* ===== BREADCRUMB ===== */
     .breadcrumb {
       padding: 1.5rem 0 0;
@@ -559,7 +639,7 @@
 
       .gallery-wrap {
         position: static;
-        flex-direction: column-reverse;
+        flex-direction: column;
       }
 
       .gallery-thumbs {
@@ -766,6 +846,21 @@
               </div>
             </div>
 
+            ${product.variants && product.variants.length ? `
+            <div class="variant-selector">
+              <p class="variant-label">Design: <span id="selectedVariantName">${product.variants[0].name}</span></p>
+              <div class="variant-buttons">
+                ${product.variants.map((v, i) => `
+                  <button class="variant-btn ${i === 0 ? "is-active" : ""} ${v.available === false ? "is-unavailable" : ""}"
+                    data-variant-idx="${i}"
+                    data-variant-img="${v.image}"
+                    data-variant-name="${v.name}"
+                    ${v.available === false ? "disabled" : ""}
+                    type="button">${v.name}${v.stock ? ` (${v.stock})` : ""}</button>
+                `).join("")}
+              </div>
+            </div>` : ""}
+
             <div class="product-detail-actions">
               ${isAvailable ? `
               <div class="detail-qty-stepper" aria-label="Quantity">
@@ -807,6 +902,28 @@
       const nextBtn = document.getElementById("galleryNext");
       if (prevBtn) prevBtn.addEventListener("click", () => goToSlide(activeIdx - 1));
       if (nextBtn) nextBtn.addEventListener("click", () => goToSlide(activeIdx + 1));
+
+      // ---- Variant logic ----
+      $all(".variant-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (btn.classList.contains("is-unavailable")) return;
+          $all(".variant-btn").forEach(b => b.classList.remove("is-active"));
+          btn.classList.add("is-active");
+
+          const variantName = btn.getAttribute("data-variant-name");
+          const variantImg = btn.getAttribute("data-variant-img");
+          document.getElementById("selectedVariantName").textContent = variantName;
+
+          // Switch main gallery image
+          if (mainImg && variantImg) {
+            mainImg.classList.add("fade");
+            setTimeout(() => {
+              mainImg.src = variantImg;
+              mainImg.classList.remove("fade");
+            }, 180);
+          }
+        });
+      });
 
       // ---- Add to cart logic ----
       if (isAvailable) {
