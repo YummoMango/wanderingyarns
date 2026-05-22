@@ -5,6 +5,54 @@ const CART_KEY = "wanderingyarns_cart";
 const REVIEWS_KEY = "wanderingyarns_reviews";
 const STOCK_KEY = "wanderingyarns_stock";
 
+/* ============================================================
+   Supabase Stock Integration
+   ============================================================ */
+const SUPABASE_URL = "https://kaessaqzirsxkhetdjib.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZXNzYXF6aXJzeGtoZXRkamliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTgxNjYsImV4cCI6MjA5NTAzNDE2Nn0.3WKkytULqu1lMOw8bKqgHl_sCypcgk-zbFC-Q4PZsM4";
+
+const sbHeaders = {
+  "apikey": SUPABASE_ANON_KEY,
+  "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+  "Content-Type": "application/json"
+};
+
+async function fetchStockFromSupabase() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/stock?select=*`, { headers: sbHeaders });
+    if (!res.ok) return {};
+    const rows = await res.json();
+    const stockMap = {};
+    rows.forEach(row => {
+      stockMap[row.variant_key] = { stock: row.stock, available: row.available };
+    });
+    return stockMap;
+  } catch { return {}; }
+}
+
+function applySupabaseStock(products, stockMap) {
+  return products.map(p => {
+    const updated = { ...p };
+    const productEntry = stockMap[p.id];
+    if (productEntry) {
+      if (productEntry.available === false) updated.available = false;
+      if (typeof productEntry.stock === "number") updated.stock = productEntry.stock;
+    }
+    if (updated.variants) {
+      updated.variants = updated.variants.map(v => {
+        const entry = stockMap[`${p.id}__${v.id}`];
+        if (!entry) return v;
+        return {
+          ...v,
+          available: entry.available !== undefined ? entry.available : v.available,
+          stock: typeof entry.stock === "number" ? entry.stock : v.stock
+        };
+      });
+    }
+    return updated;
+  });
+}
+
 /* ---------- Stock Overrides (set via admin panel) ---------- */
 function getStockOverrides() {
   try {
@@ -338,7 +386,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const rawProducts = await loadProducts();
-    const products = applyStockOverrides(rawProducts);
+
+    // Try to get stock from Supabase, fall back to localStorage overrides
+    let products;
+    try {
+      const stockMap = await fetchStockFromSupabase();
+      products = applySupabaseStock(rawProducts, stockMap);
+    } catch {
+      products = applyStockOverrides(rawProducts);
+    }
 
     // Shop page (two grids)
     if ($("#crochetGrid") || $("#souvenirGrid")) {
@@ -357,6 +413,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const cartEl = $("#cartItems");
     if (crochetEl) crochetEl.innerHTML = "<p>Could not load products.</p>";
     if (souvenirEl) souvenirEl.innerHTML = "<p>Could not load products.</p>";
-    if (cartEl) cartEl.innerHTML = "<p>Make sure Live Server is running and products.json is available.</p>";
+    if (cartEl) cartEl.innerHTML = "<p>Make sure products.json is available.</p>";
   }
 });

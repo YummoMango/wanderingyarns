@@ -255,6 +255,15 @@
       <a href="shop.html" class="back-link">← View Shop</a>
     </div>
 
+    <!-- STOCK MANAGEMENT CARD -->
+    <div class="admin-card" id="stockCard" style="display:none; max-width:520px; width:100%; margin-top:1rem;">
+      <h1 style="font-family:var(--font-display);font-size:1.4rem;font-style:italic;color:var(--ink);margin-bottom:0.35rem;">📦 Stock Management</h1>
+      <p class="admin-sub">Update availability and stock for each product/variant. Changes save to Supabase instantly.</p>
+      <div id="stockList"><p style="font-family:var(--font-ui);color:var(--ink-muted);font-size:0.9rem;">Loading products…</p></div>
+      <button class="admin-btn" id="saveStockBtn" style="margin-top:1rem;">Save All Stock Changes</button>
+      <div class="admin-success" id="stockSuccess" style="display:none;text-align:center;padding:0.9rem;color:var(--green-ok);background:var(--green-bg);border-radius:var(--radius-sm);font-family:var(--font-ui);font-weight:600;margin-top:0.75rem;font-size:0.9rem;">Stock updated! ✓</div>
+    </div>
+
   </div>
 
   <footer class="site-footer">
@@ -272,6 +281,37 @@
 
     const DEST_KEY = "wanderingyarns_destination";
     const AUTH_KEY = "wanderingyarns_admin_auth";
+
+    /* ---- Supabase ---- */
+    const SUPABASE_URL = "https://kaessaqzirsxkhetdjib.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZXNzYXF6aXJzeGtoZXRkamliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTgxNjYsImV4cCI6MjA5NTAzNDE2Nn0.3WKkytULqu1lMOw8bKqgHl_sCypcgk-zbFC-Q4PZsM4";
+    const sbHeaders = {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    };
+
+    async function fetchStock() {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/stock?select=*`, { headers: sbHeaders });
+      return res.ok ? await res.json() : [];
+    }
+
+    async function upsertStock(variantKey, stock, available) {
+      const check = await fetch(`${SUPABASE_URL}/rest/v1/stock?variant_key=eq.${encodeURIComponent(variantKey)}&select=id`, { headers: sbHeaders });
+      const existing = await check.json();
+      if (existing.length > 0) {
+        await fetch(`${SUPABASE_URL}/rest/v1/stock?variant_key=eq.${encodeURIComponent(variantKey)}`, {
+          method: "PATCH", headers: sbHeaders,
+          body: JSON.stringify({ stock, available })
+        });
+      } else {
+        await fetch(`${SUPABASE_URL}/rest/v1/stock`, {
+          method: "POST", headers: sbHeaders,
+          body: JSON.stringify({ variant_key: variantKey, stock, available })
+        });
+      }
+    }
 
     function loadDestination() {
       try {
@@ -305,6 +345,7 @@
       document.getElementById("adminScreen").style.display = "block";
       updateCurrentDisplay();
       prefillForm();
+      buildStockUI();
     }
 
     // Login
@@ -316,6 +357,7 @@
         document.getElementById("adminScreen").style.display = "block";
         updateCurrentDisplay();
         prefillForm();
+        buildStockUI();
       } else {
         document.getElementById("loginError").style.display = "block";
       }
@@ -359,8 +401,107 @@
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem(AUTH_KEY);
       document.getElementById("adminScreen").style.display = "none";
+      document.getElementById("stockCard").style.display = "none";
       document.getElementById("loginScreen").style.display = "block";
       document.getElementById("adminPassword").value = "";
+    });
+
+    /* ---- Stock UI ---- */
+    async function buildStockUI() {
+      const stockCard = document.getElementById("stockCard");
+      const listEl = document.getElementById("stockList");
+      stockCard.style.display = "block";
+
+      let products, stockRows;
+      try {
+        const res = await fetch("data/products.json");
+        products = await res.json();
+        stockRows = await fetchStock();
+      } catch {
+        listEl.innerHTML = "<p style='color:#c0392b;font-family:var(--font-ui)'>Could not load products.</p>";
+        return;
+      }
+
+      const stockMap = {};
+      stockRows.forEach(r => { stockMap[r.variant_key] = r; });
+
+      listEl.innerHTML = "";
+      products.forEach(product => {
+        const section = document.createElement("div");
+        section.style = "border:1px solid var(--cream-border);border-radius:10px;overflow:hidden;margin-bottom:1rem;";
+
+        const header = `<div style="background:var(--cream);padding:0.65rem 1rem;font-family:var(--font-display);font-weight:700;font-size:0.95rem;color:var(--ink);">${product.name}</div>`;
+
+        let rows = "";
+        if (product.variants && product.variants.length) {
+          product.variants.forEach(v => {
+            const key = `${product.id}__${v.id}`;
+            const existing = stockMap[key] || {};
+            const avail = existing.available !== undefined ? existing.available : (v.available !== false);
+            const stock = existing.stock !== undefined ? existing.stock : (v.stock ?? "");
+            rows += `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 1rem;border-top:1px solid var(--cream-border);gap:1rem;flex-wrap:wrap;">
+                <span style="font-family:var(--font-ui);font-size:0.88rem;color:var(--ink-soft);flex:1;">${v.name}</span>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <input type="number" min="0" value="${stock}" placeholder="∞"
+                    style="width:65px;padding:0.4rem 0.5rem;border:1px solid var(--cream-border);border-radius:6px;font-family:var(--font-ui);font-size:0.85rem;background:var(--cream);text-align:center;"
+                    data-key="${key}" data-type="stock" />
+                  <label style="display:flex;align-items:center;gap:0.4rem;font-family:var(--font-ui);font-size:0.82rem;color:var(--ink-muted);cursor:pointer;">
+                    <input type="checkbox" ${avail ? "checked" : ""} data-key="${key}" data-type="avail" style="accent-color:var(--rose);width:15px;height:15px;" />
+                    Available
+                  </label>
+                </div>
+              </div>`;
+          });
+        } else {
+          const key = product.id;
+          const existing = stockMap[key] || {};
+          const avail = existing.available !== undefined ? existing.available : (product.available !== false);
+          rows += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 1rem;border-top:1px solid var(--cream-border);gap:1rem;">
+              <span style="font-family:var(--font-ui);font-size:0.88rem;color:var(--ink-soft);">${product.stock === "made to order" ? "Made to order" : "Stock"}</span>
+              <label style="display:flex;align-items:center;gap:0.4rem;font-family:var(--font-ui);font-size:0.82rem;color:var(--ink-muted);cursor:pointer;">
+                <input type="checkbox" ${avail ? "checked" : ""} data-key="${key}" data-type="avail" style="accent-color:var(--rose);width:15px;height:15px;" />
+                Available
+              </label>
+            </div>`;
+        }
+
+        section.innerHTML = header + rows;
+        listEl.appendChild(section);
+      });
+    }
+
+    document.getElementById("saveStockBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("saveStockBtn");
+      btn.textContent = "Saving…";
+      btn.disabled = true;
+
+      const stockInputs = document.querySelectorAll("[data-type='stock']");
+      const availInputs = document.querySelectorAll("[data-type='avail']");
+
+      const updates = {};
+      stockInputs.forEach(el => {
+        const key = el.getAttribute("data-key");
+        if (!updates[key]) updates[key] = {};
+        const val = parseInt(el.value);
+        updates[key].stock = isNaN(val) ? null : val;
+      });
+      availInputs.forEach(el => {
+        const key = el.getAttribute("data-key");
+        if (!updates[key]) updates[key] = {};
+        updates[key].available = el.checked;
+      });
+
+      for (const [key, val] of Object.entries(updates)) {
+        await upsertStock(key, val.stock, val.available !== undefined ? val.available : true);
+      }
+
+      btn.textContent = "Save All Stock Changes";
+      btn.disabled = false;
+      const s = document.getElementById("stockSuccess");
+      s.style.display = "block";
+      setTimeout(() => { s.style.display = "none"; }, 3000);
     });
   </script>
 </body>
