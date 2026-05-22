@@ -66,7 +66,7 @@ function addToCart(productId, qty = 1) {
 function getCartCount() {
   const cart = getCart();
   let total = 0;
-  for (const id in cart) total += Number(cart[id]?.qty ?? 0);
+  for (const key in cart) total += Number(cart[key]?.qty ?? 0);
   return total;
 }
 
@@ -226,34 +226,45 @@ function renderCart(products) {
   if (emptyEl) emptyEl.classList.add("hidden");
   let subtotal = 0;
 
-  for (const id of ids) {
-    const qty = Number(cart[id]?.qty ?? 0);
+  for (const cartKey of ids) {
+    const entry = cart[cartKey];
+    const qty = Number(entry?.qty ?? 0);
     if (!qty || qty < 1) continue;
-    const product = findProduct(products, id);
+
+    // Support both old format (just productId) and new format (productId__variantId)
+    const productId = entry.productId || cartKey.split("__")[0];
+    const product = findProduct(products, productId);
     if (!product) continue;
-    const price = Number(product.price) || 0;
+
+    const price = Number(entry.price ?? product.price) || 0;
     const lineTotal = price * qty;
     subtotal += lineTotal;
+
+    const displayName = entry.variantName
+      ? `${entry.name || product.name} — ${entry.variantName}`
+      : (entry.name || product.name);
+    const image = entry.image || product.image;
+    const category = entry.category || product.category;
 
     const row = document.createElement("div");
     row.className = "cart-item";
     row.innerHTML = `
       <div class="cart-item-media">
-        <img src="${product.image}" alt="${product.name}" loading="lazy">
+        <img src="${image}" alt="${displayName}" loading="lazy">
       </div>
       <div class="cart-item-info">
         <div class="cart-item-top">
           <div>
-            <p class="cart-item-name">${product.name}</p>
-            <p class="cart-item-meta">${product.category === "crochet" ? "Crochet item" : "Souvenir"}</p>
+            <p class="cart-item-name">${displayName}</p>
+            <p class="cart-item-meta">${category === "crochet" ? "Crochet item" : "Souvenir"}</p>
           </div>
           <div class="cart-item-price">${formatMoney(price)}</div>
         </div>
         <div class="cart-item-controls">
-          <button class="qty-btn" type="button" data-dec="${id}">−</button>
+          <button class="qty-btn" type="button" data-dec="${cartKey}">−</button>
           <span class="qty">${qty}</span>
-          <button class="qty-btn" type="button" data-inc="${id}">+</button>
-          <button class="remove-btn" type="button" data-remove="${id}">Remove</button>
+          <button class="qty-btn" type="button" data-inc="${cartKey}">+</button>
+          <button class="remove-btn" type="button" data-remove="${cartKey}">Remove</button>
           <span class="line-total">${formatMoney(lineTotal)}</span>
         </div>
       </div>
@@ -266,9 +277,9 @@ function renderCart(products) {
 
   cartItemsEl.querySelectorAll("[data-inc]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-inc");
+      const key = btn.getAttribute("data-inc");
       const cart = getCart();
-      cart[id] = { qty: Number(cart[id]?.qty ?? 0) + 1 };
+      cart[key] = { ...cart[key], qty: Number(cart[key]?.qty ?? 0) + 1 };
       saveCart(cart);
       renderCart(products);
     });
@@ -276,11 +287,11 @@ function renderCart(products) {
 
   cartItemsEl.querySelectorAll("[data-dec]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-dec");
+      const key = btn.getAttribute("data-dec");
       const cart = getCart();
-      const next = Number(cart[id]?.qty ?? 0) - 1;
-      if (next <= 0) delete cart[id];
-      else cart[id] = { qty: next };
+      const next = Number(cart[key]?.qty ?? 0) - 1;
+      if (next <= 0) delete cart[key];
+      else cart[key] = { ...cart[key], qty: next };
       saveCart(cart);
       renderCart(products);
     });
@@ -288,9 +299,9 @@ function renderCart(products) {
 
   cartItemsEl.querySelectorAll("[data-remove]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-remove");
+      const key = btn.getAttribute("data-remove");
       const cart = getCart();
-      delete cart[id];
+      delete cart[key];
       saveCart(cart);
       renderCart(products);
     });

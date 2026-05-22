@@ -1010,10 +1010,40 @@
           incBtn.style.opacity = "1";
         });
 
+        // Track which variant is selected
+        let selectedVariantId = product.variants ? product.variants[0].id : null;
+        let selectedVariantName = product.variants ? product.variants[0].name : null;
+        let selectedVariantPrice = product.variants ? product.variants[0].price : product.price;
+
+        // Update selected variant when buttons clicked
+        $all(".variant-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            selectedVariantId = btn.getAttribute("data-variant-idx") !== null
+              ? product.variants[parseInt(btn.getAttribute("data-variant-idx"))].id
+              : null;
+            selectedVariantName = btn.getAttribute("data-variant-name");
+            selectedVariantPrice = btn.getAttribute("data-variant-price")
+              ? parseFloat(btn.getAttribute("data-variant-price"))
+              : product.price;
+          });
+        });
+
         addBtn.addEventListener("click", () => {
           if (qty <= 0) return;
           const cart = getCart();
-          cart[product.id] = { qty: Number(cart[product.id]?.qty ?? 0) + qty };
+          // Use variant-specific key so each variant is tracked separately
+          const cartKey = selectedVariantId ? `${product.id}__${selectedVariantId}` : product.id;
+          const existing = Number(cart[cartKey]?.qty ?? 0);
+          cart[cartKey] = {
+            qty: existing + qty,
+            productId: product.id,
+            variantId: selectedVariantId,
+            variantName: selectedVariantName,
+            price: selectedVariantPrice,
+            name: product.name,
+            image: product.image,
+            category: product.category
+          };
           saveCart(cart);
           const original = addBtn.textContent;
           addBtn.textContent = `Added ${qty} ✓`;
