@@ -953,9 +953,14 @@
         const qtyEl = document.getElementById("detailQty");
         if (qtyEl) qtyEl.textContent = 0;
         const incBtn = document.getElementById("detailInc");
-        if (incBtn) incBtn.style.opacity = "1";
         const addBtn = document.getElementById("detailAddBtn");
-        if (addBtn) { addBtn.disabled = false; addBtn.textContent = "Add to Cart"; }
+        if (limit === 0) {
+          if (incBtn) incBtn.style.opacity = "0.4";
+          if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Out of Stock"; }
+        } else {
+          if (incBtn) incBtn.style.opacity = "1";
+          if (addBtn) { addBtn.disabled = false; addBtn.textContent = "Add to Cart"; }
+        }
       }
 
       $all(".variant-btn").forEach(btn => {
@@ -997,9 +1002,16 @@
 
         // Set initial stock limit
         if (product.variants && product.variants.length) {
-          currentStockLimit = product.variants[0].stock || null;
+          currentStockLimit = product.variants[0].stock ?? null;
         } else if (typeof product.stock === "number") {
           currentStockLimit = product.stock;
+        }
+
+        // If stock is 0, disable inc and add button immediately
+        if (currentStockLimit === 0) {
+          incBtn.style.opacity = "0.4";
+          addBtn.disabled = true;
+          addBtn.textContent = "Out of Stock";
         }
 
         incBtn.addEventListener("click", () => {
