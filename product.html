@@ -807,7 +807,10 @@
         <button class="gallery-arrow next" id="galleryNext" aria-label="Next photo">›</button>` : "";
 
       const cart = getCart();
-      let qty = 0; // Always start at 0
+      // Initialize qty from cart for the first variant
+      const firstVariantId = product.variants ? product.variants[0].id : null;
+      const firstCartKey = firstVariantId ? `${product.id}__${firstVariantId}` : product.id;
+      let qty = Number(getCart()[firstCartKey]?.qty ?? 0);
 
       container.innerHTML = `
         <div class="product-detail-layout">
@@ -947,16 +950,20 @@
         });
       }
 
-      function applyStockLimit(limit) {
+      function applyStockLimit(limit, variantCartKey) {
         currentStockLimit = limit;
-        qty = 0;
+        // Read existing qty from cart for this variant
+        const existingQty = Number(getCart()[variantCartKey]?.qty ?? 0);
+        qty = existingQty;
         const qtyEl = document.getElementById("detailQty");
-        if (qtyEl) qtyEl.textContent = 0;
+        if (qtyEl) qtyEl.textContent = qty;
         const incBtn = document.getElementById("detailInc");
         const addBtn = document.getElementById("detailAddBtn");
-        if (limit === 0) {
+        if (limit === 0 || (limit !== null && existingQty >= limit)) {
           if (incBtn) incBtn.style.opacity = "0.4";
-          if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Out of Stock"; }
+          if (limit === 0) {
+            if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Out of Stock"; }
+          }
         } else {
           if (incBtn) incBtn.style.opacity = "1";
           if (addBtn) { addBtn.disabled = false; addBtn.textContent = "Add to Cart"; }
@@ -973,6 +980,14 @@
           const variantImagesRaw = btn.getAttribute("data-variant-images");
           const variantPrice = btn.getAttribute("data-variant-price");
           const variantStock = btn.getAttribute("data-variant-stock");
+          const variantIdx = btn.getAttribute("data-variant-idx");
+          const variantId = product.variants ? product.variants[parseInt(variantIdx)].id : null;
+          const variantCartKey = variantId ? `${product.id}__${variantId}` : product.id;
+
+          // Update selected variant tracking
+          selectedVariantId = variantId;
+          selectedVariantName = variantName;
+          selectedVariantPrice = variantPrice ? parseFloat(variantPrice) : product.price;
 
           // Update label
           document.getElementById("selectedVariantName").textContent = variantName;
@@ -989,8 +1004,8 @@
             if (variantImages.length > 0) updateGallery(variantImages);
           }
 
-          // Apply stock limit
-          applyStockLimit(variantStock ? parseInt(variantStock) : null);
+          // Apply stock limit (reads existing cart qty for this variant)
+          applyStockLimit(variantStock !== "" ? parseInt(variantStock) : null, variantCartKey);
         });
       });
 
@@ -1000,18 +1015,21 @@
         const addBtn = document.getElementById("detailAddBtn");
         const incBtn = document.getElementById("detailInc");
 
-        // Set initial stock limit
+        // Set initial stock limit from first variant
         if (product.variants && product.variants.length) {
           currentStockLimit = product.variants[0].stock ?? null;
         } else if (typeof product.stock === "number") {
           currentStockLimit = product.stock;
         }
 
-        // If stock is 0, disable inc and add button immediately
+        // Show qty already in cart and disable + if at limit
+        qtyEl.textContent = qty;
         if (currentStockLimit === 0) {
           incBtn.style.opacity = "0.4";
           addBtn.disabled = true;
           addBtn.textContent = "Out of Stock";
+        } else if (currentStockLimit !== null && qty >= currentStockLimit) {
+          incBtn.style.opacity = "0.4";
         }
 
         incBtn.addEventListener("click", () => {
