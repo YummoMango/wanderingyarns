@@ -126,10 +126,11 @@ async function loadProducts() {
 /* ---------- Render a single product card ---------- */
 function buildProductCard(product, cart) {
   const isAvailable = product.available !== false;
-  const minPrice = product.variants
-    ? Math.min(...product.variants.filter(v => v.price).map(v => v.price))
-    : null;
-  const priceDisplay = minPrice
+  const variantPrices = product.variants
+    ? product.variants.filter(v => v.price != null).map(v => v.price)
+    : [];
+  const minPrice = variantPrices.length > 0 ? Math.min(...variantPrices) : null;
+  const priceDisplay = minPrice != null
     ? `<span class="price-from">From </span>${formatMoney(minPrice)}`
     : formatMoney(product.price);
   const allReviews = [...(product.reviews || []), ...getReviews(product.id)];
@@ -140,7 +141,6 @@ function buildProductCard(product, cart) {
     ? `<div class="card-stars">${renderStars(parseFloat(avgRating))} <span class="card-review-count">(${allReviews.length})</span></div>`
     : "";
 
-  const inCartQty = Number(cart[product.id]?.qty ?? 0);
   const card = document.createElement("article");
   card.className = "product-card" + (!isAvailable ? " out-of-stock" : "");
 
@@ -162,14 +162,9 @@ function buildProductCard(product, cart) {
         ${!isAvailable ? `<span class="pill pill-oos">Out of Stock</span>` : ""}
       </div>
       <div class="product-actions">
-        ${isAvailable ? `
-        <div class="qty-stepper" aria-label="Quantity">
-          <button type="button" data-dec-shop="${product.id}" aria-label="Decrease">−</button>
-          <span class="qty-display" id="qty-${product.id}">${inCartQty}</span>
-          <button type="button" data-inc-shop="${product.id}" aria-label="Increase">+</button>
-        </div>
-        <a class="btn-small btn-outline" href="cart.html">View Cart</a>
-        ` : `<span class="oos-label">Currently unavailable</span>`}
+        ${isAvailable
+          ? `<a class="btn btn-primary btn-small" href="product.html?id=${product.id}">View & Buy</a>`
+          : `<span class="oos-label">Currently unavailable</span>`}
       </div>
     </div>
   `;
@@ -205,30 +200,6 @@ function renderShopGrids(products) {
       souvenirProducts.forEach(p => souvenirGrid.appendChild(buildProductCard(p, cart)));
     }
   }
-
-  // Wire up qty steppers
-  $all("[data-inc-shop]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-inc-shop");
-      addToCart(id, 1);
-      const display = document.getElementById(`qty-${id}`);
-      if (display) display.textContent = Number(getCart()[id]?.qty ?? 0);
-    });
-  });
-
-  $all("[data-dec-shop]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-dec-shop");
-      const cart = getCart();
-      const current = Number(cart[id]?.qty ?? 0);
-      if (current <= 0) return;
-      if (current === 1) delete cart[id];
-      else cart[id] = { qty: current - 1 };
-      saveCart(cart);
-      const display = document.getElementById(`qty-${id}`);
-      if (display) display.textContent = Number(getCart()[id]?.qty ?? 0);
-    });
-  });
 }
 
 /* ---------- Cart Page ---------- */
