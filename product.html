@@ -799,7 +799,7 @@
         <button class="gallery-arrow next" id="galleryNext" aria-label="Next photo">›</button>` : "";
 
       const cart = getCart();
-      let qty = 0; // Always start at 0 — each variant tracks separately
+      let qty = Number(cart[product.id]?.qty ?? 0);
 
       container.innerHTML = `
         <div class="product-detail-layout">
@@ -859,7 +859,7 @@
                     data-variant-price="${v.price !== undefined ? v.price : ""}"
                     data-variant-stock="${v.stock || ""}"
                     ${v.available === false ? "disabled" : ""}
-                    type="button">${v.name}${v.stock ? ` (${v.stock} left)` : ""}</button>
+                    type="button">${v.name}</button>
                 `).join("")}
               </div>
             </div>` : ""}
@@ -941,14 +941,13 @@
 
       function applyStockLimit(limit) {
         currentStockLimit = limit;
+        qty = 0;
+        const qtyEl = document.getElementById("detailQty");
+        if (qtyEl) qtyEl.textContent = 0;
         const incBtn = document.getElementById("detailInc");
-        // If current qty exceeds new stock limit, cap it
-        if (limit !== null && qty > limit) {
-          qty = limit;
-          const qtyEl = document.getElementById("detailQty");
-          if (qtyEl) qtyEl.textContent = qty;
-        }
-        if (incBtn) incBtn.style.opacity = (limit !== null && qty >= limit) ? "0.4" : "1";
+        if (incBtn) incBtn.style.opacity = "1";
+        const addBtn = document.getElementById("detailAddBtn");
+        if (addBtn) { addBtn.disabled = false; addBtn.textContent = "Add to Cart"; }
       }
 
       $all(".variant-btn").forEach(btn => {
@@ -977,7 +976,7 @@
             if (variantImages.length > 0) updateGallery(variantImages);
           }
 
-          // Apply stock limit (also resets qty to 0)
+          // Apply stock limit
           applyStockLimit(variantStock ? parseInt(variantStock) : null);
         });
       });

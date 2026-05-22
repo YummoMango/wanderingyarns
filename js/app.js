@@ -20,14 +20,21 @@ const sbHeaders = {
 async function fetchStockFromSupabase() {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/stock?select=*`, { headers: sbHeaders });
-    if (!res.ok) return {};
+    if (!res.ok) {
+      console.error("Supabase error:", res.status, await res.text());
+      return {};
+    }
     const rows = await res.json();
+    console.log("Supabase stock rows:", rows);
     const stockMap = {};
     rows.forEach(row => {
       stockMap[row.variant_key] = { stock: row.stock, available: row.available };
     });
     return stockMap;
-  } catch { return {}; }
+  } catch (err) {
+    console.error("Supabase fetch failed:", err);
+    return {};
+  }
 }
 
 function applySupabaseStock(products, stockMap) {
