@@ -848,15 +848,18 @@
 
             ${product.variants && product.variants.length ? `
             <div class="variant-selector">
-              <p class="variant-label">Design: <span id="selectedVariantName">${product.variants[0].name}</span></p>
+              <p class="variant-label">Option: <span id="selectedVariantName">${product.variants[0].name}</span></p>
               <div class="variant-buttons">
                 ${product.variants.map((v, i) => `
                   <button class="variant-btn ${i === 0 ? "is-active" : ""} ${v.available === false ? "is-unavailable" : ""}"
                     data-variant-idx="${i}"
                     data-variant-img="${v.image}"
+                    data-variant-images="${v.images ? v.images.join(',') : v.image}"
                     data-variant-name="${v.name}"
+                    data-variant-price="${v.price !== undefined ? v.price : ""}"
+                    data-variant-stock="${v.stock || ""}"
                     ${v.available === false ? "disabled" : ""}
-                    type="button">${v.name}${v.stock ? ` (${v.stock})` : ""}</button>
+                    type="button">${v.name}${v.stock ? ` (${v.stock} left)` : ""}</button>
                 `).join("")}
               </div>
             </div>` : ""}
@@ -904,6 +907,49 @@
       if (nextBtn) nextBtn.addEventListener("click", () => goToSlide(activeIdx + 1));
 
       // ---- Variant logic ----
+      let currentStockLimit = null;
+      let currentImages = images;
+
+      function updateGallery(newImages) {
+        currentImages = newImages;
+        activeIdx = 0;
+        if (mainImg) {
+          mainImg.classList.add("fade");
+          setTimeout(() => {
+            mainImg.src = newImages[0];
+            mainImg.classList.remove("fade");
+          }, 180);
+        }
+        // Update thumbnails
+        const thumbsEl = document.getElementById("galleryThumbs");
+        if (thumbsEl) {
+          thumbsEl.innerHTML = newImages.map((src, i) => `
+            <div class="gallery-thumb ${i === 0 ? "is-active" : ""}" data-idx="${i}">
+              <img src="${src}" alt="Product photo ${i+1}" loading="lazy" onerror="this.parentElement.style.display='none'">
+            </div>`).join("");
+          thumbsEl.querySelectorAll(".gallery-thumb").forEach(t => {
+            t.addEventListener("click", () => goToSlide(Number(t.dataset.idx)));
+          });
+        }
+        // Update dots
+        $all(".gallery-dot").forEach((d, i) => {
+          d.classList.toggle("is-active", i === 0);
+          if (i >= newImages.length) d.style.display = "none";
+          else d.style.display = "";
+        });
+      }
+
+      function applyStockLimit(limit) {
+        currentStockLimit = limit;
+        qty = 0;
+        const qtyEl = document.getElementById("detailQty");
+        if (qtyEl) qtyEl.textContent = 0;
+        const incBtn = document.getElementById("detailInc");
+        if (incBtn) incBtn.style.opacity = "1";
+        const addBtn = document.getElementById("detailAddBtn");
+        if (addBtn) { addBtn.disabled = false; addBtn.textContent = "Add to Cart"; }
+      }
+
       $all(".variant-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           if (btn.classList.contains("is-unavailable")) return;
@@ -911,17 +957,27 @@
           btn.classList.add("is-active");
 
           const variantName = btn.getAttribute("data-variant-name");
-          const variantImg = btn.getAttribute("data-variant-img");
+          const variantImagesRaw = btn.getAttribute("data-variant-images");
+          const variantPrice = btn.getAttribute("data-variant-price");
+          const variantStock = btn.getAttribute("data-variant-stock");
+
+          // Update label
           document.getElementById("selectedVariantName").textContent = variantName;
 
-          // Switch main gallery image
-          if (mainImg && variantImg) {
-            mainImg.classList.add("fade");
-            setTimeout(() => {
-              mainImg.src = variantImg;
-              mainImg.classList.remove("fade");
-            }, 180);
+          // Update price if variant has its own price
+          if (variantPrice) {
+            const priceEl = document.querySelector(".product-detail-price");
+            if (priceEl) priceEl.textContent = "$" + parseFloat(variantPrice).toFixed(2);
           }
+
+          // Switch gallery to this variant's images
+          if (variantImagesRaw) {
+            const variantImages = variantImagesRaw.split(",").filter(Boolean);
+            if (variantImages.length > 0) updateGallery(variantImages);
+          }
+
+          // Apply stock limit
+          applyStockLimit(variantStock ? parseInt(variantStock) : null);
         });
       });
 
@@ -929,9 +985,30 @@
       if (isAvailable) {
         const qtyEl = document.getElementById("detailQty");
         const addBtn = document.getElementById("detailAddBtn");
+        const incBtn = document.getElementById("detailInc");
 
-        document.getElementById("detailInc").addEventListener("click", () => { qty++; qtyEl.textContent = qty; });
-        document.getElementById("detailDec").addEventListener("click", () => { if (qty <= 0) return; qty--; qtyEl.textContent = qty; });
+        // Set initial stock limit
+        if (product.variants && product.variants.length) {
+          currentStockLimit = product.variants[0].stock || null;
+        } else if (typeof product.stock === "number") {
+          currentStockLimit = product.stock;
+        }
+
+        incBtn.addEventListener("click", () => {
+          if (currentStockLimit !== null && qty >= currentStockLimit) return;
+          qty++;
+          qtyEl.textContent = qty;
+          if (currentStockLimit !== null && qty >= currentStockLimit) {
+            incBtn.style.opacity = "0.4";
+          }
+        });
+
+        document.getElementById("detailDec").addEventListener("click", () => {
+          if (qty <= 0) return;
+          qty--;
+          qtyEl.textContent = qty;
+          incBtn.style.opacity = "1";
+        });
 
         addBtn.addEventListener("click", () => {
           if (qty <= 0) return;
@@ -943,6 +1020,7 @@
           addBtn.disabled = true;
           qty = 0;
           qtyEl.textContent = 0;
+          incBtn.style.opacity = "1";
           setTimeout(() => { addBtn.textContent = original; addBtn.disabled = false; }, 1200);
         });
       }

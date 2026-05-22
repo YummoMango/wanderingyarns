@@ -1082,3 +1082,61 @@ a { color: inherit; }
     grid-template-columns: 90px 1fr;
   }
 }
+
+/* ========== OUT OF STOCK ========== */
+.product-card.out-of-stock {
+  opacity: 0.75;
+}
+
+.product-card.out-of-stock .product-media img {
+  filter: grayscale(30%);
+}
+
+.oos-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(30,22,16,0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pill-oos {
+  border-color: #c0392b;
+  color: #c0392b;
+  background: #fdf0ef;
+}
+
+.oos-label {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+/* ========== CARD STARS ========== */
+.card-stars { display: flex; align-items: center; gap: 2px; }
+.card-stars .star { font-size: 0.82rem; }
+.card-stars .star.full { color: #e8a020; }
+.card-stars .star.half { color: #e8a020; opacity: 0.6; }
+.card-stars .star.empty { color: #ddd; }
+.card-review-count {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-left: 2px;
+}
+
+/* ========== FROM PRICE ========== */
+.price-from {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  font-family: var(--font-ui);
+}

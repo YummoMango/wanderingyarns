@@ -23,20 +23,65 @@
     "id": "crochet-plush-1",
     "name": "Crochet Plushie",
     "category": "crochet",
-    "price": 25.0,
+    "price": 14.99,
+    "priceDisplay": "From $14.99",
     "available": true,
     "images": [
-      "images/products/crochet-plushie-1.jpg",
-      "images/products/crochet-plushie-2.jpg",
-      "images/products/crochet-plushie-3.jpg",
-      "images/products/crochet-plushie-4.jpg"
+      "images/products/plushie-medium-blue-1.png",
+      "images/products/plushie-medium-blue-2.png",
+      "images/products/plushie-medium-blue-3.png",
+      "images/products/plushie-medium-blue-4.png"
     ],
-    "image": "images/products/crochet-plushie-1.jpg",
-    "description": "Soft handmade plushie made with care.",
-    "details": "A squishy, huggable plushie crocheted from chunky chenille yarn. Each one takes a few hours to make and is finished with safety eyes and a polyfill stuffing. Suitable for display or as a soft toy for older children (not for under 3s due to small parts).",
+    "image": "images/products/plushie-medium-blue-1.png",
+    "description": "Soft handmade plushie made with care \u2014 available in medium and large.",
+    "details": "A squishy, huggable plushie crocheted from chunky chenille yarn. Each one takes a few hours to make and is finished with safety eyes and polyfill stuffing. Choose your size and colour below. Suitable for display or as a soft toy for older children (not for under 3s due to small parts).",
     "origin": "Handmade",
     "materials": "Chenille yarn, polyester stuffing, safety eyes",
     "stock": "made to order",
+    "variants": [
+      {
+        "id": "medium-blue",
+        "name": "Medium \u2014 Blue",
+        "price": 14.99,
+        "stock": 1,
+        "available": true,
+        "images": [
+          "images/products/plushie-medium-blue-1.png",
+          "images/products/plushie-medium-blue-2.png",
+          "images/products/plushie-medium-blue-3.png",
+          "images/products/plushie-medium-blue-4.png"
+        ],
+        "image": "images/products/plushie-medium-blue-1.png"
+      },
+      {
+        "id": "medium-pink",
+        "name": "Medium \u2014 Pink",
+        "price": 14.99,
+        "stock": 1,
+        "available": true,
+        "images": [
+          "images/products/plushie-medium-pink-1.png",
+          "images/products/plushie-medium-pink-2.png",
+          "images/products/plushie-medium-pink-3.png",
+          "images/products/plushie-medium-pink-4.png"
+        ],
+        "image": "images/products/plushie-medium-pink-1.png"
+      },
+      {
+        "id": "large",
+        "name": "Large",
+        "price": 24.99,
+        "stock": 1,
+        "available": true,
+        "images": [
+          "images/products/plushie-large-1.png",
+          "images/products/plushie-large-2.png",
+          "images/products/plushie-large-3.png",
+          "images/products/plushie-large-4.png"
+        ],
+        "image": "images/products/plushie-large-1.png"
+      }
+    ],
     "reviews": []
   },
   {
@@ -62,31 +107,27 @@
         "id": "teal-flower",
         "name": "Teal Flower",
         "image": "images/products/coaster-teal-flower.jpg",
-        "available": true
+        "available": true,
+        "stock": 1
       },
       {
         "id": "blue-flower",
         "name": "Blue Flower",
         "image": "images/products/coaster-blue-flower.jpg",
-        "available": true
+        "available": true,
+        "stock": 1
       },
       {
         "id": "moon",
         "name": "Moon",
         "image": "images/products/coaster-moon.jpg",
-        "available": true
-      },
-      {
-        "id": "berry-bloom-a",
-        "name": "Berry Bloom A",
-        "image": "images/products/coaster-berry-bloom-1.jpg",
         "available": true,
-        "stock": 2
+        "stock": 1
       },
       {
-        "id": "berry-bloom-b",
-        "name": "Berry Bloom B",
-        "image": "images/products/coaster-berry-bloom-2.jpg",
+        "id": "berry-bloom",
+        "name": "Berry Bloom",
+        "image": "images/products/coaster-berry-bloom-1.jpg",
         "available": true,
         "stock": 2
       },
@@ -94,7 +135,8 @@
         "id": "lavender-bloom",
         "name": "Lavender Bloom",
         "image": "images/products/coaster-lavender-bloom.jpg",
-        "available": true
+        "available": true,
+        "stock": 1
       }
     ],
     "reviews": []

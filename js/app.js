@@ -3,6 +3,38 @@
 const PRODUCTS_URL = "data/products.json";
 const CART_KEY = "wanderingyarns_cart";
 const REVIEWS_KEY = "wanderingyarns_reviews";
+const STOCK_KEY = "wanderingyarns_stock";
+
+/* ---------- Stock Overrides (set via admin panel) ---------- */
+function getStockOverrides() {
+  try {
+    const raw = localStorage.getItem(STOCK_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function applyStockOverrides(products) {
+  const overrides = getStockOverrides();
+  return products.map(p => {
+    const o = overrides[p.id];
+    if (!o) return p;
+    const updated = { ...p };
+    if (o.available !== undefined) updated.available = o.available;
+    if (o.stock !== undefined && o.stock !== null) updated.stock = o.stock;
+    if (o.variants && updated.variants) {
+      updated.variants = updated.variants.map(v => {
+        const vo = o.variants[v.id];
+        if (!vo) return v;
+        return {
+          ...v,
+          available: vo.available !== undefined ? vo.available : v.available,
+          stock: vo.stock !== undefined && vo.stock !== null ? vo.stock : v.stock
+        };
+      });
+    }
+    return updated;
+  });
+}
 
 /* ---------- Helpers ---------- */
 function $(selector) { return document.querySelector(selector); }
@@ -94,7 +126,12 @@ async function loadProducts() {
 /* ---------- Render a single product card ---------- */
 function buildProductCard(product, cart) {
   const isAvailable = product.available !== false;
-  const allReviews = [...(product.reviews || []), ...getReviews(product.id)];
+  const minPrice = product.variants
+    ? Math.min(...product.variants.filter(v => v.price).map(v => v.price))
+    : null;
+  const priceDisplay = minPrice
+    ? `<span class="price-from">From </span>${formatMoney(minPrice)}`
+    : formatMoney(product.price);
   const avgRating = allReviews.length
     ? (allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length).toFixed(1)
     : null;
@@ -114,7 +151,7 @@ function buildProductCard(product, cart) {
     <div class="product-body">
       <div class="product-title">
         <h3><a href="product.html?id=${product.id}" class="product-name-link">${product.name}</a></h3>
-        <div class="price">${formatMoney(product.price)}</div>
+        <div class="price">${priceDisplay}</div>
       </div>
       ${starsHtml}
       <p class="product-desc">${product.description}</p>
@@ -317,7 +354,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateCartCount();
 
   try {
-    const products = await loadProducts();
+    const rawProducts = await loadProducts();
+    const products = applyStockOverrides(rawProducts);
 
     // Shop page (two grids)
     if ($("#crochetGrid") || $("#souvenirGrid")) {
