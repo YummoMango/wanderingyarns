@@ -1062,7 +1062,8 @@
             price: selectedVariantPrice,
             name: product.name,
             image: product.image,
-            category: product.category
+            category: product.category,
+            stockLimit: currentStockLimit
           };
           saveCart(cart);
           const original = addBtn.textContent;
