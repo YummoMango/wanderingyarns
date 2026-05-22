@@ -749,6 +749,14 @@
         products = await res.json();
       } catch { showNotFound(container); return; }
 
+      // Apply Supabase stock overrides
+      try {
+        const stockMap = await fetchStockFromSupabase();
+        products = applySupabaseStock(products, stockMap);
+      } catch (e) {
+        console.warn("Could not apply Supabase stock:", e);
+      }
+
       const product = products.find(p => p.id === id);
       if (!product) { showNotFound(container); return; }
 
@@ -799,7 +807,7 @@
         <button class="gallery-arrow next" id="galleryNext" aria-label="Next photo">›</button>` : "";
 
       const cart = getCart();
-      let qty = Number(cart[product.id]?.qty ?? 0);
+      let qty = 0; // Always start at 0
 
       container.innerHTML = `
         <div class="product-detail-layout">
