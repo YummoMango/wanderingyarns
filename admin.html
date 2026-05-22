@@ -283,31 +283,31 @@
     const AUTH_KEY = "wanderingyarns_admin_auth";
 
     /* ---- Supabase ---- */
-    const SUPABASE_URL = "https://kaessaqzirsxkhetdjib.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZXNzYXF6aXJzeGtoZXRkamliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTgxNjYsImV4cCI6MjA5NTAzNDE2Nn0.3WKkytULqu1lMOw8bKqgHl_sCypcgk-zbFC-Q4PZsM4";
-    const sbHeaders = {
+    const ADMIN_SB_URL = "https://kaessaqzirsxkhetdjib.supabase.co";
+    const ADMIN_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZXNzYXF6aXJzeGtoZXRkamliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTgxNjYsImV4cCI6MjA5NTAzNDE2Nn0.3WKkytULqu1lMOw8bKqgHl_sCypcgk-zbFC-Q4PZsM4";
+    const adminSbHeaders = {
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Authorization": `Bearer ${ADMIN_SB_KEY}`,
       "Content-Type": "application/json",
       "Prefer": "return=representation"
     };
 
     async function fetchStock() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/stock?select=*`, { headers: sbHeaders });
+      const res = await fetch(`${ADMIN_SB_URL}/rest/v1/stock?select=*`, { headers: adminSbHeaders });
       return res.ok ? await res.json() : [];
     }
 
     async function upsertStock(variantKey, stock, available) {
-      const check = await fetch(`${SUPABASE_URL}/rest/v1/stock?variant_key=eq.${encodeURIComponent(variantKey)}&select=id`, { headers: sbHeaders });
+      const check = await fetch(`${ADMIN_SB_URL}/rest/v1/stock?variant_key=eq.${encodeURIComponent(variantKey)}&select=id`, { headers: adminSbHeaders });
       const existing = await check.json();
       if (existing.length > 0) {
-        await fetch(`${SUPABASE_URL}/rest/v1/stock?variant_key=eq.${encodeURIComponent(variantKey)}`, {
-          method: "PATCH", headers: sbHeaders,
+        await fetch(`${ADMIN_SB_URL}/rest/v1/stock?variant_key=eq.${encodeURIComponent(variantKey)}`, {
+          method: "PATCH", headers: adminSbHeaders,
           body: JSON.stringify({ stock, available })
         });
       } else {
-        await fetch(`${SUPABASE_URL}/rest/v1/stock`, {
-          method: "POST", headers: sbHeaders,
+        await fetch(`${ADMIN_SB_URL}/rest/v1/stock`, {
+          method: "POST", headers: adminSbHeaders,
           body: JSON.stringify({ variant_key: variantKey, stock, available })
         });
       }
