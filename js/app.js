@@ -132,6 +132,7 @@ function buildProductCard(product, cart) {
   const priceDisplay = minPrice
     ? `<span class="price-from">From </span>${formatMoney(minPrice)}`
     : formatMoney(product.price);
+  const allReviews = [...(product.reviews || []), ...getReviews(product.id)];
   const avgRating = allReviews.length
     ? (allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length).toFixed(1)
     : null;
