@@ -1059,13 +1059,28 @@
         addBtn.addEventListener("click", () => {
           if (qty <= 0) return;
           const cart = getCart();
-          // Use variant-specific key so each variant is tracked separately
           const cartKey = selectedVariantId ? `${product.id}__${selectedVariantId}` : product.id;
           const existing = Number(cart[cartKey]?.qty ?? 0);
+
+          // Don't allow adding if already at stock limit
+          if (currentStockLimit !== null && existing >= currentStockLimit) {
+            addBtn.disabled = true;
+            addBtn.textContent = "Already in Cart ✓";
+            qty = 0;
+            qtyEl.textContent = 0;
+            incBtn.style.opacity = "0.4";
+            return;
+          }
+
+          // Cap qty so we don't exceed stock limit
+          const allowedQty = currentStockLimit !== null
+            ? Math.min(qty, currentStockLimit - existing)
+            : qty;
+
           const selectedVariant = product.variants ? product.variants.find(v => v.id === selectedVariantId) : null;
           const cartImage = selectedVariant?.image || product.image;
           cart[cartKey] = {
-            qty: existing + qty,
+            qty: existing + allowedQty,
             productId: product.id,
             variantId: selectedVariantId,
             variantName: selectedVariantName,
@@ -1076,26 +1091,22 @@
             stockLimit: currentStockLimit
           };
           saveCart(cart);
-          const original = addBtn.textContent;
-          addBtn.textContent = `Added ${qty} ✓`;
+
+          addBtn.textContent = `Added ${allowedQty} ✓`;
           addBtn.disabled = true;
           qty = 0;
           qtyEl.textContent = 0;
-          incBtn.style.opacity = "1";
 
-          // After adding, check if we're now at the stock limit
           const newCartQty = Number(getCart()[cartKey]?.qty ?? 0);
-          if (currentStockLimit !== null && newCartQty >= currentStockLimit) {
-            incBtn.style.opacity = "0.4";
-          }
+          const atLimit = currentStockLimit !== null && newCartQty >= currentStockLimit;
+          incBtn.style.opacity = atLimit ? "0.4" : "1";
 
           setTimeout(() => {
-            addBtn.textContent = original;
-            // Keep disabled if at stock limit
-            if (currentStockLimit !== null && Number(getCart()[cartKey]?.qty ?? 0) >= currentStockLimit) {
+            if (atLimit) {
+              addBtn.textContent = "Already in Cart ✓";
               addBtn.disabled = true;
-              addBtn.textContent = "Max quantity reached";
             } else {
+              addBtn.textContent = "Add to Cart";
               addBtn.disabled = false;
             }
           }, 1200);
