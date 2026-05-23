@@ -807,10 +807,7 @@
         <button class="gallery-arrow next" id="galleryNext" aria-label="Next photo">›</button>` : "";
 
       const cart = getCart();
-      // Initialize qty from cart for the first variant
-      const firstVariantId = product.variants ? product.variants[0].id : null;
-      const firstCartKey = firstVariantId ? `${product.id}__${firstVariantId}` : product.id;
-      let qty = Number(getCart()[firstCartKey]?.qty ?? 0);
+      let qty = 0; // How many MORE to add (not total in cart)
 
       container.innerHTML = `
         <div class="product-detail-layout">
@@ -952,16 +949,17 @@
 
       function applyStockLimit(limit, variantCartKey) {
         currentStockLimit = limit;
-        const existingQty = Number(getCart()[variantCartKey]?.qty ?? 0);
-        qty = existingQty;
+        const cartQty = Number(getCart()[variantCartKey]?.qty ?? 0);
+        // Reset the "how many more to add" counter to 0
+        qty = 0;
         const qtyEl = document.getElementById("detailQty");
-        if (qtyEl) qtyEl.textContent = qty;
+        if (qtyEl) qtyEl.textContent = 0;
         const incBtn = document.getElementById("detailInc");
         const addBtn = document.getElementById("detailAddBtn");
         if (limit === 0) {
           if (incBtn) incBtn.style.opacity = "0.4";
           if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Out of Stock"; }
-        } else if (limit !== null && existingQty >= limit) {
+        } else if (limit !== null && cartQty >= limit) {
           if (incBtn) incBtn.style.opacity = "0.4";
           if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Already in Cart ✓"; }
         } else {
@@ -1023,12 +1021,14 @@
         }
 
         // Show qty already in cart and disable + if at limit
-        qtyEl.textContent = qty;
+        qtyEl.textContent = 0;
+        const firstCartKey = selectedVariantId ? `${product.id}__${selectedVariantId}` : product.id;
+        const firstCartQty = Number(getCart()[firstCartKey]?.qty ?? 0);
         if (currentStockLimit === 0) {
           incBtn.style.opacity = "0.4";
           addBtn.disabled = true;
           addBtn.textContent = "Out of Stock";
-        } else if (currentStockLimit !== null && qty >= currentStockLimit) {
+        } else if (currentStockLimit !== null && firstCartQty >= currentStockLimit) {
           incBtn.style.opacity = "0.4";
           addBtn.disabled = true;
           addBtn.textContent = "Already in Cart ✓";
