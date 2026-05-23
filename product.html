@@ -1044,10 +1044,17 @@
         }
 
         incBtn.addEventListener("click", () => {
-          if (currentStockLimit !== null && qty >= currentStockLimit) return;
+          // How many of THIS variant are already in the cart
+          const cartKey = selectedVariantId ? `${product.id}__${selectedVariantId}` : product.id;
+          const cartQty = Number(getCart()[cartKey]?.qty ?? 0);
+          // qty = how many MORE we're about to add; total can't exceed stock limit
+          const maxAdditional = currentStockLimit !== null
+            ? Math.max(0, currentStockLimit - cartQty)
+            : Infinity;
+          if (qty >= maxAdditional) return;
           qty++;
           qtyEl.textContent = qty;
-          if (currentStockLimit !== null && qty >= currentStockLimit) {
+          if (qty >= maxAdditional) {
             incBtn.style.opacity = "0.4";
           }
         });
