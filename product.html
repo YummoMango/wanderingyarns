@@ -895,10 +895,10 @@
       const mainImg = document.getElementById("galleryMainImg");
 
       function goToSlide(idx) {
-        activeIdx = (idx + images.length) % images.length;
+        activeIdx = (idx + currentImages.length) % currentImages.length;
         mainImg.classList.add("fade");
         setTimeout(() => {
-          mainImg.src = images[activeIdx];
+          mainImg.src = currentImages[activeIdx];
           mainImg.classList.remove("fade");
         }, 180);
         $all(".gallery-thumb").forEach(t => t.classList.toggle("is-active", Number(t.dataset.idx) === activeIdx));
