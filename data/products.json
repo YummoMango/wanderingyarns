@@ -3,20 +3,46 @@
     "id": "crochet-keychain-1",
     "name": "Crochet Keychain",
     "category": "crochet",
-    "price": 12.0,
-    "available": false,
+    "price": 5.0,
+    "priceDisplay": "From $5.00",
+    "available": true,
     "images": [
-      "images/products/crochet-keychain-1.jpg",
-      "images/products/crochet-keychain-2.jpg",
-      "images/products/crochet-keychain-3.jpg",
-      "images/products/crochet-keychain-4.jpg"
+      "images/products/crochet-keychain-small-1.jpg",
+      "images/products/crochet-keychain-small-2.jpg",
+      "images/products/crochet-keychain-small-3.jpg",
+      "images/products/crochet-keychain-small-4.jpg"
     ],
-    "image": "images/products/crochet-keychain-1.jpg",
-    "description": "Handmade crochet keychain \u2014 lightweight, cute, and giftable.",
-    "details": "Each keychain is crocheted by hand using soft acrylic yarn, then stuffed lightly and finished with a sturdy metal keyring. No two are exactly alike \u2014 small variations in colour and shape are part of what makes them special. Great as a bag charm, gift, or little treat for yourself.",
+    "image": "images/products/crochet-keychain-small-1.jpg",
+    "description": "Handmade crochet keychain — lightweight, cute, and giftable.",
+    "details": "Each keychain is crocheted by hand using soft acrylic yarn, then stuffed lightly and finished with a sturdy metal keyring. No two are exactly alike — small variations in colour and shape are part of what makes them special. Great as a bag charm, gift, or little treat for yourself.",
     "origin": "Handmade",
     "materials": "Acrylic yarn, polyester stuffing, metal keyring",
     "stock": "made to order",
+    "variants": [
+      {
+        "id": "small",
+        "name": "Small",
+        "price": 5.0,
+        "available": true,
+        "images": [
+          "images/products/crochet-keychain-small-1.jpg",
+          "images/products/crochet-keychain-small-2.jpg",
+          "images/products/crochet-keychain-small-3.jpg",
+          "images/products/crochet-keychain-small-4.jpg"
+        ],
+        "image": "images/products/crochet-keychain-small-1.jpg"
+      },
+      {
+        "id": "medium",
+        "name": "Medium",
+        "price": 12.0,
+        "available": true,
+        "images": [
+          "images/products/crochet-keychain-medium-1.jpg"
+        ],
+        "image": "images/products/crochet-keychain-medium-1.jpg"
+      }
+    ],
     "reviews": []
   },
   {
@@ -33,7 +59,7 @@
       "images/products/plushie-medium-blue-4.png"
     ],
     "image": "images/products/plushie-medium-blue-1.png",
-    "description": "Soft handmade plushie made with care \u2014 available in medium and large.",
+    "description": "Soft handmade plushie made with care — available in medium and large.",
     "details": "A squishy, huggable plushie crocheted from chunky chenille yarn. Each one takes a few hours to make and is finished with safety eyes and polyfill stuffing. Choose your size and colour below. Suitable for display or as a soft toy for older children (not for under 3s due to small parts).",
     "origin": "Handmade",
     "materials": "Chenille yarn, polyester stuffing, safety eyes",
@@ -41,7 +67,7 @@
     "variants": [
       {
         "id": "medium-blue",
-        "name": "Medium \u2014 Blue",
+        "name": "Medium — Blue",
         "price": 14.99,
         "stock": 1,
         "available": true,
@@ -55,7 +81,7 @@
       },
       {
         "id": "medium-pink",
-        "name": "Medium \u2014 Pink",
+        "name": "Medium — Pink",
         "price": 14.99,
         "stock": 1,
         "available": true,
@@ -97,8 +123,8 @@
       "images/products/coaster-berry-bloom-1.jpg"
     ],
     "image": "images/products/coaster-teal-flower.jpg",
-    "description": "Handmade granny square coasters \u2014 each one a little work of art.",
-    "details": "Each coaster is crocheted by hand using soft acrylic yarn in a classic granny square style. No two are exactly alike. Choose your favourite design from the options below \u2014 each one has its own colour palette and personality. Great for gifting or keeping for yourself.",
+    "description": "Handmade granny square coasters — each one a little work of art.",
+    "details": "Each coaster is crocheted by hand using soft acrylic yarn in a classic granny square style. No two are exactly alike. Choose your favourite design from the options below — each one has its own colour palette and personality. Great for gifting or keeping for yourself.",
     "origin": "Handmade",
     "materials": "Acrylic yarn",
     "stock": "limited",
@@ -153,7 +179,7 @@
     ],
     "image": "images/products/postcards-1.jpg",
     "description": "A set of postcards collected from a trip abroad.",
-    "details": "A small bundle of postcards picked up during travels \u2014 from museums, local shops, and market stalls. Each pack contains 4\u20136 cards from the same trip or region. Great for decorating, journaling, or actually sending to someone.",
+    "details": "A small bundle of postcards picked up during travels — from museums, local shops, and market stalls. Each pack contains 4–6 cards from the same trip or region. Great for decorating, journaling, or actually sending to someone.",
     "origin": "Collected abroad",
     "materials": "Printed card stock",
     "stock": "limited",
