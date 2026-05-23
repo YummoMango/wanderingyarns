@@ -952,18 +952,18 @@
 
       function applyStockLimit(limit, variantCartKey) {
         currentStockLimit = limit;
-        // Read existing qty from cart for this variant
         const existingQty = Number(getCart()[variantCartKey]?.qty ?? 0);
         qty = existingQty;
         const qtyEl = document.getElementById("detailQty");
         if (qtyEl) qtyEl.textContent = qty;
         const incBtn = document.getElementById("detailInc");
         const addBtn = document.getElementById("detailAddBtn");
-        if (limit === 0 || (limit !== null && existingQty >= limit)) {
+        if (limit === 0) {
           if (incBtn) incBtn.style.opacity = "0.4";
-          if (limit === 0) {
-            if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Out of Stock"; }
-          }
+          if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Out of Stock"; }
+        } else if (limit !== null && existingQty >= limit) {
+          if (incBtn) incBtn.style.opacity = "0.4";
+          if (addBtn) { addBtn.disabled = true; addBtn.textContent = "Already in Cart ✓"; }
         } else {
           if (incBtn) incBtn.style.opacity = "1";
           if (addBtn) { addBtn.disabled = false; addBtn.textContent = "Add to Cart"; }
@@ -1030,6 +1030,8 @@
           addBtn.textContent = "Out of Stock";
         } else if (currentStockLimit !== null && qty >= currentStockLimit) {
           incBtn.style.opacity = "0.4";
+          addBtn.disabled = true;
+          addBtn.textContent = "Already in Cart ✓";
         }
 
         incBtn.addEventListener("click", () => {
