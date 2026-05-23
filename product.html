@@ -809,6 +809,15 @@
       const cart = getCart();
       let qty = 0; // How many MORE to add (not total in cart)
 
+      // Track which variant is selected — declared up here so BOTH the variant
+      // button handlers and the addBtn handler can read/write the same vars.
+      // (Previously these were declared inside if (isAvailable) AFTER being
+      // referenced at line ~1025, which threw a TDZ error and killed all the
+      // +/-/Add-to-Cart click handlers.)
+      let selectedVariantId = product.variants ? product.variants[0].id : null;
+      let selectedVariantName = product.variants ? product.variants[0].name : null;
+      let selectedVariantPrice = product.variants ? product.variants[0].price : product.price;
+
       container.innerHTML = `
         <div class="product-detail-layout">
           <div class="gallery-wrap">
@@ -1051,9 +1060,8 @@
         });
 
         // Track which variant is selected
-        let selectedVariantId = product.variants ? product.variants[0].id : null;
-        let selectedVariantName = product.variants ? product.variants[0].name : null;
-        let selectedVariantPrice = product.variants ? product.variants[0].price : product.price;
+        // (declarations moved to the top of the DOMContentLoaded scope to
+        // avoid a TDZ error — they're now reachable from line ~1025 above)
 
         // Update selected variant when buttons clicked
         addBtn.addEventListener("click", () => {
