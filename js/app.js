@@ -301,6 +301,16 @@ function renderCart(products) {
     const image = entry.image || product.image;
     const category = entry.category || product.category;
 
+    // Get stock limit from cart entry or product variants
+    let stockLimit = entry?.stockLimit ?? null;
+    if (stockLimit === null && entry.variantId && product.variants) {
+      const v = product.variants.find(v => v.id === entry.variantId);
+      stockLimit = v?.stock ?? null;
+    } else if (stockLimit === null && typeof product.stock === "number") {
+      stockLimit = product.stock;
+    }
+    const atLimit = stockLimit !== null && qty >= stockLimit;
+
     const row = document.createElement("div");
     row.className = "cart-item";
     row.innerHTML = `
@@ -318,7 +328,7 @@ function renderCart(products) {
         <div class="cart-item-controls">
           <button class="qty-btn" type="button" data-dec="${cartKey}">−</button>
           <span class="qty">${qty}</span>
-          <button class="qty-btn" type="button" data-inc="${cartKey}">+</button>
+          <button class="qty-btn" type="button" data-inc="${cartKey}" ${atLimit ? 'disabled style="opacity:0.4;cursor:default;"' : ""}>+</button>
           <button class="remove-btn" type="button" data-remove="${cartKey}">Remove</button>
           <span class="line-total">${formatMoney(lineTotal)}</span>
         </div>
@@ -334,7 +344,17 @@ function renderCart(products) {
     btn.addEventListener("click", () => {
       const key = btn.getAttribute("data-inc");
       const cart = getCart();
-      cart[key] = { ...cart[key], qty: Number(cart[key]?.qty ?? 0) + 1 };
+      const entry = cart[key];
+      const currentQty = Number(entry?.qty ?? 0);
+      // Get stock limit
+      let limit = entry?.stockLimit ?? null;
+      if (limit === null && entry?.variantId) {
+        const p = findProduct(products, entry.productId || key.split("__")[0]);
+        const v = p?.variants?.find(v => v.id === entry.variantId);
+        limit = v?.stock ?? null;
+      }
+      if (limit !== null && currentQty >= limit) return;
+      cart[key] = { ...entry, qty: currentQty + 1 };
       saveCart(cart);
       renderCart(products);
     });
@@ -363,10 +383,18 @@ function renderCart(products) {
   });
 }
 
-function setupCartPage(products) {
+async function setupCartPage(products) {
   const clearBtn = $("#clearCartBtn");
   const checkoutBtn = $("#checkoutBtn");
   if (!clearBtn && !checkoutBtn) return;
+
+  // Apply Supabase stock to products so cart knows real limits
+  try {
+    const stockMap = await fetchStockFromSupabase();
+    products = applySupabaseStock(products, stockMap);
+  } catch (e) {
+    console.warn("Could not fetch Supabase stock for cart:", e);
+  }
 
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {

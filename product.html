@@ -868,7 +868,7 @@
                     data-variant-images="${v.images ? v.images.join(',') : v.image}"
                     data-variant-name="${v.name}"
                     data-variant-price="${v.price !== undefined ? v.price : ""}"
-                    data-variant-stock="${v.stock || ""}"
+                    data-variant-stock="${v.stock ?? ""}"
                     ${v.available === false ? "disabled" : ""}
                     type="button">${v.name}</button>
                 `).join("")}
@@ -1054,24 +1054,14 @@
         let selectedVariantPrice = product.variants ? product.variants[0].price : product.price;
 
         // Update selected variant when buttons clicked
-        $all(".variant-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            selectedVariantId = btn.getAttribute("data-variant-idx") !== null
-              ? product.variants[parseInt(btn.getAttribute("data-variant-idx"))].id
-              : null;
-            selectedVariantName = btn.getAttribute("data-variant-name");
-            selectedVariantPrice = btn.getAttribute("data-variant-price")
-              ? parseFloat(btn.getAttribute("data-variant-price"))
-              : product.price;
-          });
-        });
-
         addBtn.addEventListener("click", () => {
           if (qty <= 0) return;
           const cart = getCart();
           // Use variant-specific key so each variant is tracked separately
           const cartKey = selectedVariantId ? `${product.id}__${selectedVariantId}` : product.id;
           const existing = Number(cart[cartKey]?.qty ?? 0);
+          const selectedVariant = product.variants ? product.variants.find(v => v.id === selectedVariantId) : null;
+          const cartImage = selectedVariant?.image || product.image;
           cart[cartKey] = {
             qty: existing + qty,
             productId: product.id,
@@ -1079,7 +1069,7 @@
             variantName: selectedVariantName,
             price: selectedVariantPrice,
             name: product.name,
-            image: product.image,
+            image: cartImage,
             category: product.category,
             stockLimit: currentStockLimit
           };
@@ -1090,7 +1080,23 @@
           qty = 0;
           qtyEl.textContent = 0;
           incBtn.style.opacity = "1";
-          setTimeout(() => { addBtn.textContent = original; addBtn.disabled = false; }, 1200);
+
+          // After adding, check if we're now at the stock limit
+          const newCartQty = Number(getCart()[cartKey]?.qty ?? 0);
+          if (currentStockLimit !== null && newCartQty >= currentStockLimit) {
+            incBtn.style.opacity = "0.4";
+          }
+
+          setTimeout(() => {
+            addBtn.textContent = original;
+            // Keep disabled if at stock limit
+            if (currentStockLimit !== null && Number(getCart()[cartKey]?.qty ?? 0) >= currentStockLimit) {
+              addBtn.disabled = true;
+              addBtn.textContent = "Max quantity reached";
+            } else {
+              addBtn.disabled = false;
+            }
+          }, 1200);
         });
       }
 
