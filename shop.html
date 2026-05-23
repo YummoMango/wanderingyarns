@@ -314,25 +314,37 @@
           <div class="request-box">
             <h3>Request a Souvenir</h3>
             <p class="request-sub">Got something specific in mind? Let me know and I'll keep an eye out on my travels!</p>
-            <div class="req-group">
-              <label>Your name</label>
-              <input type="text" id="reqName" placeholder="e.g. Sarah" />
-            </div>
-            <div class="req-group">
-              <label>Email address</label>
-              <input type="email" id="reqEmail" placeholder="you@example.com" />
-            </div>
-            <div class="req-group">
-              <label>What are you looking for?</label>
-              <textarea id="reqItem" placeholder="e.g. A small ceramic piece, local postcards, handmade jewellery…"></textarea>
-            </div>
-            <div class="req-group">
-              <label>Budget (optional)</label>
-              <input type="text" id="reqBudget" placeholder="e.g. Under $20" />
-            </div>
-            <button class="req-submit" id="reqSubmitBtn">Send Request ✈️</button>
-            <div class="req-success" id="reqSuccess">Request sent! I'll keep an eye out 🌍</div>
-            <p class="airtable-note" id="airtableNote">Requests are saved securely — no spam, ever.</p>
+            <form id="reqForm" name="souvenir-requests" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+              <!-- Netlify needs form-name field on JS submissions -->
+              <input type="hidden" name="form-name" value="souvenir-requests" />
+              <!-- Honeypot: hidden from humans, traps bots -->
+              <p style="display:none">
+                <label>Don't fill this out: <input name="bot-field" /></label>
+              </p>
+              <!-- Hidden fields populated at submit time -->
+              <input type="hidden" name="destination" id="reqDestHidden" value="" />
+              <input type="hidden" name="submitted-date" id="reqDateHidden" value="" />
+
+              <div class="req-group">
+                <label for="reqName">Your name</label>
+                <input type="text" id="reqName" name="name" placeholder="e.g. Sarah" required />
+              </div>
+              <div class="req-group">
+                <label for="reqEmail">Email address</label>
+                <input type="email" id="reqEmail" name="email" placeholder="you@example.com" required />
+              </div>
+              <div class="req-group">
+                <label for="reqItem">What are you looking for?</label>
+                <textarea id="reqItem" name="request" placeholder="e.g. A small ceramic piece, local postcards, handmade jewellery…" required></textarea>
+              </div>
+              <div class="req-group">
+                <label for="reqBudget">Budget (optional)</label>
+                <input type="text" id="reqBudget" name="budget" placeholder="e.g. Under $20" />
+              </div>
+              <button type="submit" class="req-submit" id="reqSubmitBtn">Send Request ✈️</button>
+              <div class="req-success" id="reqSuccess">Request sent! I'll keep an eye out 🌍</div>
+              <p class="airtable-note" id="airtableNote">Your request goes straight to me — no spam, ever.</p>
+            </form>
           </div>
         </div>
       </div>
@@ -379,47 +391,43 @@
 
     renderDestinationBoard();
 
-    /* ===== SOUVENIR REQUEST FORM ===== */
-    const AIRTABLE_API_KEY = "YOUR_AIRTABLE_API_KEY";
-    const AIRTABLE_BASE_ID = "YOUR_AIRTABLE_BASE_ID";
-    const AIRTABLE_TABLE = "Souvenir Requests";
+    /* ===== SOUVENIR REQUEST FORM (Netlify Forms) ===== */
+    document.getElementById("reqForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    document.getElementById("reqSubmitBtn").addEventListener("click", async () => {
       const name = document.getElementById("reqName").value.trim();
       const email = document.getElementById("reqEmail").value.trim();
       const item = document.getElementById("reqItem").value.trim();
-      const budget = document.getElementById("reqBudget").value.trim();
 
       if (!name || !email || !item) {
         alert("Please fill in your name, email, and what you're looking for!");
         return;
       }
 
+      // Populate hidden fields at submit time so they go with the form
       const dest = loadDestination();
+      document.getElementById("reqDestHidden").value = dest?.place || "Unknown";
+      document.getElementById("reqDateHidden").value = new Date().toLocaleDateString("en-US", {
+        month: "long", day: "numeric", year: "numeric"
+      });
+
       const btn = document.getElementById("reqSubmitBtn");
       btn.textContent = "Sending…";
       btn.disabled = true;
 
       try {
-        if (AIRTABLE_API_KEY !== "YOUR_AIRTABLE_API_KEY") {
-          await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${AIRTABLE_API_KEY}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              fields: {
-                "Name": name,
-                "Email": email,
-                "Request": item,
-                "Budget": budget || "Not specified",
-                "Destination": dest?.place || "Unknown",
-                "Date": new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
-              }
-            })
-          });
-        }
+        // Netlify Forms expects application/x-www-form-urlencoded with form-name field
+        const formData = new FormData(e.target);
+        const params = new URLSearchParams();
+        formData.forEach((value, key) => params.append(key, value));
+
+        const res = await fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: params.toString()
+        });
+
+        if (!res.ok) throw new Error("Submission failed: " + res.status);
 
         btn.style.display = "none";
         document.getElementById("reqSuccess").style.display = "block";
