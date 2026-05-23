@@ -1006,9 +1006,25 @@
           }
 
           // Switch gallery to this variant's images
+          //   - If the variant has its OWN multi-image gallery (length > 1),
+          //     replace the gallery entirely. (plushie / keychain Small)
+          //   - If the variant has a single image AND that image is already
+          //     in the current gallery, just navigate to that slide so the
+          //     gallery stays intact. (coasters — all variants share one gallery)
+          //   - Otherwise fall back to replacing with the single image.
+          //     (keychain Medium when current gallery is the Small set)
           if (variantImagesRaw) {
             const variantImages = variantImagesRaw.split(",").filter(Boolean);
-            if (variantImages.length > 0) updateGallery(variantImages);
+            if (variantImages.length > 1) {
+              updateGallery(variantImages);
+            } else if (variantImages.length === 1) {
+              const idx = currentImages.indexOf(variantImages[0]);
+              if (idx >= 0) {
+                goToSlide(idx);
+              } else {
+                updateGallery(variantImages);
+              }
+            }
           }
 
           // Apply stock limit (reads existing cart qty for this variant)
