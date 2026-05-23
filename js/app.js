@@ -405,8 +405,48 @@ async function setupCartPage(products) {
   }
 
   if (checkoutBtn) {
-    checkoutBtn.addEventListener("click", () => {
-      alert("Stripe checkout isn't connected yet — we'll wire this up next!");
+    checkoutBtn.addEventListener("click", async () => {
+      const cart = getCart();
+      const cartKeys = Object.keys(cart);
+
+      if (cartKeys.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+
+      // Build minimal items payload — server validates prices itself from products.json
+      const items = cartKeys.map(key => {
+        const entry = cart[key];
+        return {
+          productId: entry.productId || key.split("__")[0],
+          variantId: entry.variantId,
+          qty: entry.qty,
+          image: entry.image
+        };
+      });
+
+      const originalText = checkoutBtn.textContent;
+      checkoutBtn.textContent = "Connecting to checkout…";
+      checkoutBtn.disabled = true;
+
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || "Could not start checkout");
+        }
+        // Redirect to Stripe-hosted checkout page
+        window.location.href = data.url;
+      } catch (err) {
+        console.error("Checkout error:", err);
+        alert("Sorry, we couldn't start checkout — please try again.\n\n" + (err.message || ""));
+        checkoutBtn.textContent = originalText;
+        checkoutBtn.disabled = false;
+      }
     });
   }
 
