@@ -1,6 +1,9 @@
 // Cloudflare Pages Function: POST /api/checkout
 // Creates a Stripe Checkout Session from the customer's cart and returns the URL to redirect to.
 
+const SUPABASE_URL = "https://kaessaqzirsxkhetdjib.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZXNzYXF6aXJzeGtoZXRkamliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTgxNjYsImV4cCI6MjA5NTAzNDE2Nn0.3WKkytULqu1lMOw8bKqgHl_sCypcgk-zbFC-Q4PZsM4";
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -66,7 +69,38 @@ export async function onRequestPost(context) {
       return json({ error: `Invalid quantity for ${name}` }, 400);
     }
 
-    lineItems.push({ name, price, qty, image });
+    lineItems.push({ name, price, qty, image, variantKey: item.variantId ? `${item.productId}__${item.variantId}` : item.productId });
+  }
+
+  // Pull current stock from Supabase to verify nothing in the cart exceeds available stock.
+  // Browser-side stock data can be stale; this is the authoritative check.
+  let stockMap = {};
+  try {
+    const stockRes = await fetch(`${SUPABASE_URL}/rest/v1/stock?select=*`, {
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    if (stockRes.ok) {
+      const rows = await stockRes.json();
+      rows.forEach(r => { stockMap[r.variant_key] = r; });
+    }
+  } catch (err) {
+    console.error("Could not fetch stock from Supabase:", err);
+    // Don't block checkout if Supabase is briefly unavailable — fall back to products.json availability flags.
+  }
+
+  for (const li of lineItems) {
+    const entry = stockMap[li.variantKey];
+    if (!entry) continue; // No Supabase override means use products.json default (already checked above).
+    if (entry.available === false) {
+      return json({ error: `${li.name} is no longer available` }, 400);
+    }
+    if (typeof entry.stock === "number" && entry.stock < li.qty) {
+      const left = entry.stock <= 0 ? "none" : `only ${entry.stock}`;
+      return json({ error: `Sorry — ${left} left of ${li.name}. Please update your cart.` }, 409);
+    }
   }
 
   // Build URL-encoded body for Stripe API
@@ -87,6 +121,15 @@ export async function onRequestPost(context) {
   params.append("mode", "payment");
   params.append("success_url", `${origin}/success.html?session_id={CHECKOUT_SESSION_ID}`);
   params.append("cancel_url", `${origin}/cart.html`);
+
+  // Attach the cart as metadata so the webhook can decrement Supabase stock after payment.
+  // Stripe metadata values must be strings, ≤ 500 chars. A typical cart easily fits.
+  const cartForMeta = lineItems.map(li => ({
+    k: li.variantKey,
+    n: li.name,
+    q: li.qty
+  }));
+  params.append("metadata[cart_items]", JSON.stringify(cartForMeta));
 
   // Collect shipping address — US only for now (adjust as needed)
   params.append("shipping_address_collection[allowed_countries][]", "US");
