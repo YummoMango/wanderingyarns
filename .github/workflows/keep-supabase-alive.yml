@@ -1,0 +1,27 @@
+# Pings the Supabase REST API on a schedule so the project doesn't get
+# auto-paused for inactivity. The anon key is safe to hardcode — it's
+# already public in the frontend app.js.
+
+name: Keep Supabase Alive
+
+on:
+  # Run every 5 days at 09:00 UTC — well inside Supabase's 7-day pause threshold
+  schedule:
+    - cron: '0 9 */5 * *'
+  # Lets you also trigger this by hand from the Actions tab in GitHub
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase stock table
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZXNzYXF6aXJzeGtoZXRkamliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTgxNjYsImV4cCI6MjA5NTAzNDE2Nn0.3WKkytULqu1lMOw8bKqgHl_sCypcgk-zbFC-Q4PZsM4" \
+            "https://kaessaqzirsxkhetdjib.supabase.co/rest/v1/stock?select=variant_key&limit=1")
+          echo "Supabase responded with HTTP $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Supabase ping failed (HTTP $STATUS)"
+            exit 1
+          fi
