@@ -107,6 +107,23 @@ export async function onRequestPost(context) {
       console.error("Failed to send confirmation email:", err);
       // Don't return non-2xx — stock was already decremented, email is best-effort
     }
+
+    // ── 3. Send order notification to shop owner ──────────────────────────────
+    try {
+      await sendOwnerNotification({
+        apiKey: env.RESEND_API_KEY,
+        customerEmail,
+        customerName,
+        sessionId: session.id,
+        cartItems,
+        lineItems,
+        amountTotal: session.amount_total,
+        amountShipping: session.total_details?.amount_shipping ?? null,
+        shipping: session.shipping_details || null,
+      });
+    } catch (err) {
+      console.error("Failed to send owner notification:", err);
+    }
   } else {
     if (!customerEmail) console.warn("No customer email in session — skipping email");
     if (!env.RESEND_API_KEY) console.warn("RESEND_API_KEY not set — skipping email");
@@ -302,6 +319,107 @@ async function sendConfirmationEmail({ apiKey, toEmail, toName, sessionId, cartI
 
   const result = await res.json();
   console.log("Confirmation email sent:", result.id);
+}
+
+// ─── Owner notification email ─────────────────────────────────────────────────
+
+async function sendOwnerNotification({ apiKey, customerEmail, customerName, sessionId, cartItems, lineItems, amountTotal, amountShipping, shipping }) {
+  const total = typeof amountTotal === "number" ? `$${(amountTotal / 100).toFixed(2)}` : "—";
+  const shippingCost = typeof amountShipping === "number" ? `$${(amountShipping / 100).toFixed(2)}` : "Included";
+  const shortId = sessionId.replace(/^cs_(live|test)_/, "").slice(0, 12).toUpperCase();
+
+  // Build items list
+  let itemsHtml = "";
+  if (lineItems.length > 0) {
+    itemsHtml = lineItems.map(li =>
+      `<li style="margin-bottom:6px;color:#333;font-size:15px;">${li.description || "Item"}${li.quantity > 1 ? ` × ${li.quantity}` : ""} — $${(li.amount_total / 100).toFixed(2)}</li>`
+    ).join("");
+  } else {
+    itemsHtml = cartItems.map(ci =>
+      `<li style="margin-bottom:6px;color:#333;font-size:15px;">${ci.n}${ci.q > 1 ? ` × ${ci.q}` : ""}</li>`
+    ).join("");
+  }
+
+  // Build shipping address block
+  let addressHtml = "<p style='color:#888;font-size:14px;'>No shipping address collected</p>";
+  if (shipping && shipping.address) {
+    const a = shipping.address;
+    const lines = [
+      shipping.name || "",
+      a.line1 || "",
+      a.line2 || "",
+      [a.city, a.state, a.postal_code].filter(Boolean).join(", "),
+      a.country || ""
+    ].filter(Boolean);
+    addressHtml = lines.map(l => `<p style="margin:0 0 2px;color:#333;font-size:15px;">${l}</p>`).join("");
+  }
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:30px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:white;border-radius:12px;padding:28px 32px;border:1px solid #e0e0e0;">
+
+        <tr><td>
+          <h1 style="margin:0 0 4px;font-size:22px;color:#1e1610;">📦 New Order!</h1>
+          <p style="margin:0 0 20px;font-size:13px;color:#888;">Order #${shortId}</p>
+
+          <h2 style="margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#888;">Customer</h2>
+          <p style="margin:0 0 4px;font-size:15px;color:#333;font-weight:600;">${customerName || "No name provided"}</p>
+          <p style="margin:0 0 20px;font-size:15px;color:#333;">${customerEmail}</p>
+
+          <h2 style="margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#888;">Items</h2>
+          <ul style="padding-left:18px;margin:0 0 20px;">${itemsHtml}</ul>
+
+          <h2 style="margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:#888;">Ship to</h2>
+          <div style="margin-bottom:20px;">${addressHtml}</div>
+
+          <table width="100%" style="border-top:2px solid #eee;padding-top:12px;">
+            <tr>
+              <td style="font-size:14px;color:#888;">Shipping</td>
+              <td style="text-align:right;font-size:14px;color:#888;">${shippingCost}</td>
+            </tr>
+            <tr>
+              <td style="font-size:16px;font-weight:700;color:#1e1610;padding-top:6px;">Total</td>
+              <td style="text-align:right;font-size:16px;font-weight:700;color:#1e1610;padding-top:6px;">${total}</td>
+            </tr>
+          </table>
+
+          <p style="margin:20px 0 0;font-size:13px;color:#aaa;text-align:center;">
+            <a href="https://dashboard.stripe.com/payments" style="color:#d4726a;text-decoration:none;">View in Stripe Dashboard →</a>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: "WanderingYarns Orders <orders@wanderingyarns.com>",
+      to: ["edward.m.chung@gmail.com"],
+      subject: `📦 New order from ${customerName || customerEmail}! (#${shortId})`,
+      html
+    })
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`Resend API ${res.status}: ${errBody}`);
+  }
+
+  const result = await res.json();
+  console.log("Owner notification sent:", result.id);
 }
 
 // ─── Stripe signature verification ───────────────────────────────────────────
