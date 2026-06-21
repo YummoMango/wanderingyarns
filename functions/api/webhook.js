@@ -1,6 +1,7 @@
 // Cloudflare Pages Function: POST /api/webhook
-// Receives Stripe webhook events. On checkout.session.completed,
-// decrements stock in Supabase for each item purchased.
+// Receives Stripe webhook events. On checkout.session.completed:
+//   1. Decrements stock in Supabase for each item purchased
+//   2. Sends a warm order confirmation email via Resend
 
 const SUPABASE_URL = "https://kaessaqzirsxkhetdjib.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZXNzYXF6aXJzeGtoZXRkamliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTgxNjYsImV4cCI6MjA5NTAzNDE2Nn0.3WKkytULqu1lMOw8bKqgHl_sCypcgk-zbFC-Q4PZsM4";
@@ -55,7 +56,7 @@ export async function onRequestPost(context) {
     return new Response("Invalid metadata", { status: 200 });
   }
 
-  // Decrement stock for each item purchased
+  // ── 1. Decrement stock for each item purchased ────────────────────────────
   for (const item of cartItems) {
     try {
       await decrementStock(item.k, item.q);
@@ -66,8 +67,55 @@ export async function onRequestPost(context) {
     }
   }
 
+  // ── 2. Send confirmation email via Resend ─────────────────────────────────
+  const customerEmail = session.customer_details?.email;
+  const customerName = session.customer_details?.name || "";
+
+  if (customerEmail && env.RESEND_API_KEY) {
+    try {
+      // Fetch line items from Stripe so we can show prices in the email
+      let lineItems = [];
+      if (env.STRIPE_SECRET_KEY) {
+        try {
+          const liRes = await fetch(
+            `https://api.stripe.com/v1/checkout/sessions/${session.id}/line_items?limit=50`,
+            {
+              headers: { "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}` }
+            }
+          );
+          if (liRes.ok) {
+            const liData = await liRes.json();
+            lineItems = liData.data || [];
+          }
+        } catch (err) {
+          console.warn("Could not fetch line items from Stripe:", err);
+          // Fall back to cart metadata (no prices, but names are there)
+        }
+      }
+
+      await sendConfirmationEmail({
+        apiKey: env.RESEND_API_KEY,
+        toEmail: customerEmail,
+        toName: customerName,
+        sessionId: session.id,
+        cartItems,
+        lineItems,
+        amountTotal: session.amount_total,
+        amountShipping: session.total_details?.amount_shipping ?? null,
+      });
+    } catch (err) {
+      console.error("Failed to send confirmation email:", err);
+      // Don't return non-2xx — stock was already decremented, email is best-effort
+    }
+  } else {
+    if (!customerEmail) console.warn("No customer email in session — skipping email");
+    if (!env.RESEND_API_KEY) console.warn("RESEND_API_KEY not set — skipping email");
+  }
+
   return new Response("OK", { status: 200 });
 }
+
+// ─── Stock decrement ──────────────────────────────────────────────────────────
 
 async function decrementStock(variantKey, qty) {
   // Get current stock entry
@@ -113,6 +161,150 @@ async function decrementStock(variantKey, qty) {
     throw new Error(`Supabase patch failed: ${patchRes.status}`);
   }
 }
+
+// ─── Confirmation email ───────────────────────────────────────────────────────
+
+async function sendConfirmationEmail({ apiKey, toEmail, toName, sessionId, cartItems, lineItems, amountTotal, amountShipping }) {
+  const firstName = toName ? toName.split(" ")[0] : "there";
+  const total = typeof amountTotal === "number" ? `$${(amountTotal / 100).toFixed(2)}` : "—";
+  const shipping = typeof amountShipping === "number" ? `$${(amountShipping / 100).toFixed(2)}` : "Included";
+  const shortId = sessionId.replace(/^cs_(live|test)_/, "").slice(0, 12).toUpperCase();
+
+  // Build the items table — prefer Stripe line items (has prices), fall back to cart metadata
+  let itemRows = "";
+  if (lineItems.length > 0) {
+    itemRows = lineItems.map(li => `
+      <tr>
+        <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;color:#4a3f35;font-size:15px;">
+          ${li.description || "Item"}${li.quantity > 1 ? ` <span style="color:#8a7a6d;">× ${li.quantity}</span>` : ""}
+        </td>
+        <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;text-align:right;font-weight:700;color:#1e1610;font-size:15px;white-space:nowrap;">
+          $${(li.amount_total / 100).toFixed(2)}
+        </td>
+      </tr>`).join("");
+  } else {
+    itemRows = cartItems.map(ci => `
+      <tr>
+        <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;color:#4a3f35;font-size:15px;">
+          ${ci.n}${ci.q > 1 ? ` <span style="color:#8a7a6d;">× ${ci.q}</span>` : ""}
+        </td>
+        <td style="padding:10px 0;border-bottom:1px solid #f0ebe4;text-align:right;color:#8a7a6d;font-size:14px;">
+          —
+        </td>
+      </tr>`).join("");
+  }
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f8f3ec;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f3ec;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+        <!-- Header -->
+        <tr><td style="text-align:center;padding-bottom:28px;">
+          <p style="margin:0;font-size:28px;font-weight:900;color:#1e1610;font-family:Georgia,serif;font-style:italic;letter-spacing:-0.5px;">
+            🧶 WanderingYarns
+          </p>
+        </td></tr>
+
+        <!-- Card -->
+        <tr><td style="background:white;border-radius:16px;padding:36px 36px 28px;border:1px solid #e4d9cc;box-shadow:0 4px 20px rgba(30,22,16,0.08);">
+
+          <p style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#d4726a;">
+            Order Confirmed ✓
+          </p>
+          <h1 style="margin:0 0 18px;font-size:26px;font-weight:900;color:#1e1610;font-family:Georgia,serif;line-height:1.2;">
+            Thanks, ${firstName}! Your order is in. 🎉
+          </h1>
+
+          <p style="margin:0 0 20px;font-size:15px;color:#4a3f35;line-height:1.7;">
+            I got your order and I'm already excited to get it ready for you.
+            I'll be in touch once it's on its way — in the meantime, feel free to
+            reply to this email if you have any questions at all.
+          </p>
+
+          <!-- Order summary -->
+          <div style="background:#f8f3ec;border-radius:10px;padding:20px 22px;margin-bottom:22px;border:1px solid #e4d9cc;">
+            <p style="margin:0 0 12px;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8a7a6d;">
+              Order summary · #${shortId}
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              ${itemRows}
+              <tr>
+                <td style="padding-top:12px;font-size:14px;color:#8a7a6d;">Shipping</td>
+                <td style="padding-top:12px;text-align:right;font-size:14px;color:#8a7a6d;">${shipping}</td>
+              </tr>
+              <tr>
+                <td style="padding-top:10px;font-size:16px;font-weight:900;color:#1e1610;border-top:2px solid #e4d9cc;">Total</td>
+                <td style="padding-top:10px;text-align:right;font-size:16px;font-weight:900;color:#1e1610;border-top:2px solid #e4d9cc;">${total}</td>
+              </tr>
+            </table>
+          </div>
+
+          <p style="margin:0 0 6px;font-size:15px;color:#4a3f35;line-height:1.7;">
+            Have a question or want to check in?
+          </p>
+          <p style="margin:0 0 28px;font-size:15px;color:#4a3f35;line-height:1.7;">
+            📧 Just reply to this email or write to
+            <a href="mailto:hello@wanderingyarns.com" style="color:#d4726a;text-decoration:none;font-weight:600;">hello@wanderingyarns.com</a>
+            — I read every message personally.
+          </p>
+
+          <p style="margin:0;font-size:15px;color:#4a3f35;line-height:1.7;">
+            Thank you so much for supporting a tiny one-person shop —
+            it genuinely means a lot. 🧶
+          </p>
+
+          <p style="margin:20px 0 0;font-size:15px;color:#4a3f35;">
+            — Edward @ WanderingYarns
+          </p>
+
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="text-align:center;padding-top:24px;">
+          <p style="margin:0;font-size:12px;color:#8a7a6d;line-height:1.7;">
+            WanderingYarns · Handmade crochet &amp; travel souvenirs<br>
+            <a href="https://wanderingyarns.com" style="color:#d4726a;text-decoration:none;">wanderingyarns.com</a>
+            &nbsp;·&nbsp;
+            <a href="mailto:hello@wanderingyarns.com" style="color:#d4726a;text-decoration:none;">hello@wanderingyarns.com</a>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: "WanderingYarns <orders@wanderingyarns.com>",
+      to: [toEmail],
+      reply_to: "edward.m.chung@gmail.com",
+      subject: "Your WanderingYarns order is confirmed! 🧶",
+      html
+    })
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`Resend API ${res.status}: ${errBody}`);
+  }
+
+  const result = await res.json();
+  console.log("Confirmation email sent:", result.id);
+}
+
+// ─── Stripe signature verification ───────────────────────────────────────────
 
 // Verify the Stripe-Signature header (HMAC-SHA256 of `timestamp.body`).
 // See https://docs.stripe.com/webhooks/signatures for the algorithm.

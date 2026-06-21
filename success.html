@@ -29,7 +29,16 @@
       height: 4px;
       background: linear-gradient(90deg, var(--rose), var(--amber));
     }
-    .success-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .success-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      display: block;
+      animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes pop {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
     .success-card h1 {
       font-family: var(--font-display);
       font-size: 1.8rem;
@@ -42,12 +51,37 @@
       line-height: 1.7;
       margin-bottom: 0.75rem;
     }
+    .success-contact {
+      background: var(--cream);
+      border: 1px solid var(--cream-border);
+      border-radius: var(--radius-md, 10px);
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      text-align: left;
+    }
+    .success-contact p {
+      font-size: 0.9rem;
+      margin: 0 0 0.3rem;
+    }
+    .success-contact p:last-child { margin: 0; }
+    .success-contact a {
+      color: var(--rose);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .success-contact a:hover { text-decoration: underline; }
     .success-actions {
       display: flex;
       gap: 0.75rem;
       justify-content: center;
       margin-top: 2rem;
       flex-wrap: wrap;
+    }
+    .success-note {
+      font-size: 0.82rem;
+      color: var(--ink-muted, #8a7a6d);
+      margin-top: 1.5rem;
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -57,25 +91,46 @@
       <a class="brand" href="index.html" aria-label="WanderingYarns Home">
         <img src="images/wanderingyarns-logo.png" alt="WanderingYarns logo" class="brand-logo">
       </a>
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
       <nav class="site-nav" aria-label="Primary">
         <a href="index.html" class="nav-link">Home</a>
         <a href="shop.html" class="nav-link">Shop</a>
         <a href="about.html" class="nav-link">About</a>
-        <a href="cart.html" class="nav-link">Cart <span class="cart-count">(0)</span></a>
+        <a href="cart.html" class="nav-link">Cart <span class="cart-count" aria-label="Items in cart">(0)</span></a>
       </nav>
     </div>
   </header>
 
   <main class="success-wrap">
     <div class="success-card">
-      <div class="success-icon">🧶</div>
-      <h1>Thank you for your order!</h1>
-      <p>Your payment went through successfully. You'll receive a confirmation email from Stripe shortly with your order details.</p>
-      <p>I'll be in touch as soon as your items are ready to ship!</p>
+      <span class="success-icon" role="img" aria-label="Party popper">🎉</span>
+      <h1>You're all set!</h1>
+      <p>
+        Thank you so much for your order — it genuinely means a lot that you
+        chose to shop here. I've received everything and I'll get it ready
+        for you as soon as I can.
+      </p>
+      <p>
+        A confirmation email with your order details is on its way to your
+        inbox right now. (Check your spam folder just in case!)
+      </p>
+
+      <div class="success-contact">
+        <p>📧 Questions? Just reach out:</p>
+        <p>
+          <a href="mailto:hello@wanderingyarns.com">hello@wanderingyarns.com</a>
+          — I read every message personally and usually reply within a day.
+        </p>
+      </div>
+
       <div class="success-actions">
-        <a class="btn btn-primary" href="shop.html">Keep Shopping</a>
+        <a class="btn btn-primary" href="shop.html">Keep Browsing</a>
         <a class="btn btn-ghost" href="index.html">Back to Home</a>
       </div>
+
+      <p class="success-note">
+        🧶 WanderingYarns is a one-person shop — thank you for supporting it!
+      </p>
     </div>
   </main>
 
