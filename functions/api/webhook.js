@@ -262,12 +262,12 @@ async function sendConfirmationEmail({ apiKey, toEmail, toName, sessionId, cartI
           </div>
 
           <p style="margin:0 0 6px;font-size:15px;color:#4a3f35;line-height:1.7;">
-            Have a question or want to check in?
+            Have a question about shipping time or anything else?
           </p>
           <p style="margin:0 0 28px;font-size:15px;color:#4a3f35;line-height:1.7;">
             📧 Just reply to this email or write to
             <a href="mailto:hello@wanderingyarns.com" style="color:#d4726a;text-decoration:none;font-weight:600;">hello@wanderingyarns.com</a>
-            — I read every message personally.
+            to check in — I read every message personally.
           </p>
 
           <p style="margin:0;font-size:15px;color:#4a3f35;line-height:1.7;">
